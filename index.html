@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="InnerMap — A private self-discovery platform for Indian students aged 13–18. Discover your interests, recognise your strengths, and explore future pathways without pressure.">
+<meta name="keywords" content="student self-discovery, career guidance India, student app India, teen mental wellness, InnerMap">
+<title>InnerMap — Know yourself, find your path</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream:#FAF7F2; --ink:#1C1917; --muted:#78716C;
+    --border:#E7E3DC; --teal:#0F766E; --teal-light:#CCFBF1;
+    --amber:#B45309; --amber-light:#FEF3C7;
+    --rose:#BE185D; --rose-light:#FCE7F3;
+    --sand:#F5F0E8; --white:#FFFFFF; --purple:#6D28D9;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--cream);color:var(--ink);line-height:1.6;}
+
+  /* NAV */
+  .nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(250,247,242,0.95);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);padding:0 24px;}
+  .nav-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:64px;}
+  .nav-logo{font-family:'DM Serif Display',serif;font-size:22px;color:var(--ink);display:flex;align-items:center;gap:10px;text-decoration:none;}
+  .nav-logo-mark{width:32px;height:32px;border-radius:9px;background:var(--ink);color:var(--cream);display:flex;align-items:center;justify-content:center;font-size:15px;}
+  .nav-links{display:flex;align-items:center;gap:32px;}
+  .nav-link{font-size:14px;color:var(--muted);text-decoration:none;transition:color 0.2s;}
+  .nav-link:hover{color:var(--ink);}
+  .nav-cta{background:var(--ink);color:var(--white);padding:10px 22px;border-radius:10px;font-size:14px;font-weight:600;text-decoration:none;transition:background 0.2s;}
+  .nav-cta:hover{background:#2C2826;}
+
+  /* HERO */
+  .hero{padding:140px 24px 100px;text-align:center;background:var(--ink);position:relative;overflow:hidden;}
+  .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 20% 50%,rgba(15,118,110,0.25) 0%,transparent 55%),radial-gradient(ellipse at 80% 30%,rgba(180,83,9,0.15) 0%,transparent 55%),radial-gradient(ellipse at 50% 80%,rgba(109,40,217,0.15) 0%,transparent 55%);}
+  .hero-inner{position:relative;z-index:1;max-width:700px;margin:0 auto;}
+  .hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(110,231,183,0.12);border:1px solid rgba(110,231,183,0.25);border-radius:20px;padding:6px 16px;font-size:12px;color:#6EE7B7;margin-bottom:28px;letter-spacing:0.5px;}
+  .hero-badge-dot{width:6px;height:6px;border-radius:50%;background:#6EE7B7;animation:pulse 2s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.5;transform:scale(1.3);}}
+  .hero h1{font-family:'DM Serif Display',serif;font-size:clamp(40px,6vw,68px);color:var(--white);line-height:1.1;margin-bottom:20px;letter-spacing:-1px;}
+  .hero h1 em{font-style:italic;color:#6EE7B7;}
+  .hero-sub{font-size:clamp(16px,2vw,20px);color:rgba(255,255,255,0.6);line-height:1.7;max-width:520px;margin:0 auto 40px;}
+  .hero-cta-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+  .btn-hero-primary{background:#6EE7B7;color:var(--ink);padding:16px 36px;border-radius:14px;font-size:16px;font-weight:600;text-decoration:none;transition:all 0.2s;display:inline-block;}
+  .btn-hero-primary:hover{background:#5DCAA5;transform:translateY(-2px);}
+  .btn-hero-secondary{background:rgba(255,255,255,0.08);color:var(--white);padding:16px 28px;border-radius:14px;font-size:16px;font-weight:500;text-decoration:none;border:1px solid rgba(255,255,255,0.15);transition:all 0.2s;display:inline-block;}
+  .btn-hero-secondary:hover{background:rgba(255,255,255,0.14);}
+  .hero-note{font-size:13px;color:rgba(255,255,255,0.35);margin-top:20px;}
+  .hero-stats{display:flex;gap:40px;justify-content:center;margin-top:60px;flex-wrap:wrap;}
+  .hero-stat{text-align:center;}
+  .hero-stat-num{font-family:'DM Serif Display',serif;font-size:32px;color:var(--white);}
+  .hero-stat-label{font-size:13px;color:rgba(255,255,255,0.4);margin-top:2px;}
+
+  /* SECTIONS */
+  section{padding:80px 24px;}
+  .container{max-width:1100px;margin:0 auto;}
+  .section-tag{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--teal);margin-bottom:12px;}
+  .section-title{font-family:'DM Serif Display',serif;font-size:clamp(28px,4vw,42px);color:var(--ink);margin-bottom:16px;line-height:1.2;}
+  .section-sub{font-size:16px;color:var(--muted);max-width:560px;line-height:1.7;}
+
+  /* PROBLEM */
+  .problem{background:var(--sand);}
+  .problem-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;margin-top:48px;}
+  .problem-card{background:var(--white);border:1px solid var(--border);border-radius:18px;padding:24px;}
+  .problem-icon{font-size:28px;margin-bottom:14px;}
+  .problem-card h3{font-size:16px;font-weight:600;margin-bottom:8px;}
+  .problem-card p{font-size:14px;color:var(--muted);line-height:1.6;}
+
+  /* HOW IT WORKS */
+  .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:0;margin-top:60px;position:relative;}
+  .step{text-align:center;padding:0 32px;position:relative;}
+  .step:not(:last-child)::after{content:'→';position:absolute;right:-10px;top:28px;font-size:20px;color:var(--border);}
+  .step-num{width:56px;height:56px;border-radius:16px;background:var(--ink);color:var(--white);display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:22px;margin:0 auto 16px;}
+  .step h3{font-size:16px;font-weight:600;margin-bottom:8px;}
+  .step p{font-size:13px;color:var(--muted);line-height:1.6;}
+
+  /* FEATURES */
+  .features-bg{background:var(--ink);}
+  .features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:48px;}
+  .feature-item{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:18px;padding:24px;transition:border 0.2s;}
+  .feature-item:hover{border-color:rgba(110,231,183,0.3);}
+  .feature-item-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:14px;}
+  .feature-item h3{font-size:15px;font-weight:600;color:var(--white);margin-bottom:8px;}
+  .feature-item p{font-size:13px;color:rgba(255,255,255,0.5);line-height:1.6;}
+  .feature-tag-free{display:inline-block;background:rgba(110,231,183,0.15);color:#6EE7B7;font-size:10px;font-weight:600;padding:3px 10px;border-radius:10px;margin-top:10px;}
+  .feature-tag-paid{display:inline-block;background:rgba(109,40,217,0.2);color:#A78BFA;font-size:10px;font-weight:600;padding:3px 10px;border-radius:10px;margin-top:10px;}
+
+  /* PRICING */
+  .pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin-top:48px;}
+  .pricing-card{background:var(--white);border:1px solid var(--border);border-radius:24px;padding:32px;position:relative;}
+  .pricing-card.featured{border:2px solid var(--teal);}
+  .pricing-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--teal);color:white;font-size:11px;font-weight:600;padding:4px 16px;border-radius:20px;white-space:nowrap;}
+  .pricing-name{font-size:14px;font-weight:600;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;}
+  .pricing-amount{font-family:'DM Serif Display',serif;font-size:48px;color:var(--ink);line-height:1;}
+  .pricing-period{font-size:14px;color:var(--muted);margin-bottom:24px;}
+  .pricing-features{margin-bottom:28px;}
+  .pricing-feat{display:flex;align-items:flex-start;gap:10px;font-size:14px;padding:8px 0;border-bottom:1px solid var(--border);}
+  .pricing-feat:last-child{border-bottom:none;}
+  .pricing-feat-icon{color:var(--teal);font-size:13px;margin-top:2px;flex-shrink:0;}
+  .pricing-feat-icon.no{color:#D1D5DB;}
+  .pricing-cta{display:block;width:100%;padding:14px;border-radius:12px;font-size:15px;font-weight:600;text-align:center;text-decoration:none;transition:all 0.2s;font-family:'Plus Jakarta Sans',sans-serif;border:none;cursor:pointer;}
+  .pricing-cta-free{background:var(--sand);color:var(--ink);}
+  .pricing-cta-free:hover{background:var(--border);}
+  .pricing-cta-paid{background:var(--teal);color:var(--white);}
+  .pricing-cta-paid:hover{background:#0D6660;}
+
+  /* TESTIMONIALS */
+  .testi-bg{background:var(--sand);}
+  .testi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;margin-top:48px;}
+  .testi-card{background:var(--white);border:1px solid var(--border);border-radius:18px;padding:24px;}
+  .testi-stars{color:#F59E0B;font-size:14px;margin-bottom:12px;}
+  .testi-text{font-size:14px;color:var(--ink);line-height:1.7;margin-bottom:16px;font-style:italic;}
+  .testi-author{display:flex;align-items:center;gap:10px;}
+  .testi-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:white;flex-shrink:0;}
+  .testi-name{font-size:13px;font-weight:600;}
+  .testi-role{font-size:12px;color:var(--muted);}
+
+  /* FAQ */
+  .faq-list{margin-top:48px;max-width:700px;}
+  .faq-item{border-bottom:1px solid var(--border);padding:20px 0;cursor:pointer;}
+  .faq-item:first-child{border-top:1px solid var(--border);}
+  .faq-q{display:flex;justify-content:space-between;align-items:center;gap:20px;}
+  .faq-q-text{font-size:15px;font-weight:600;color:var(--ink);}
+  .faq-icon{font-size:18px;color:var(--muted);flex-shrink:0;transition:transform 0.2s;}
+  .faq-item.open .faq-icon{transform:rotate(45deg);}
+  .faq-a{font-size:14px;color:var(--muted);line-height:1.7;margin-top:12px;display:none;}
+  .faq-item.open .faq-a{display:block;}
+
+  /* FINAL CTA */
+  .final-cta{background:var(--ink);text-align:center;padding:100px 24px;}
+  .final-cta h2{font-family:'DM Serif Display',serif;font-size:clamp(28px,4vw,48px);color:var(--white);margin-bottom:16px;line-height:1.2;}
+  .final-cta p{font-size:16px;color:rgba(255,255,255,0.5);margin-bottom:40px;max-width:480px;margin-left:auto;margin-right:auto;line-height:1.7;}
+
+  /* FOOTER */
+  footer{background:#111;padding:40px 24px;}
+  .footer-inner{max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:20px;}
+  .footer-logo{font-family:'DM Serif Display',serif;font-size:18px;color:var(--white);}
+  .footer-links{display:flex;gap:24px;flex-wrap:wrap;}
+  .footer-link{font-size:13px;color:rgba(255,255,255,0.4);text-decoration:none;transition:color 0.2s;}
+  .footer-link:hover{color:rgba(255,255,255,0.8);}
+  .footer-copy{font-size:12px;color:rgba(255,255,255,0.2);width:100%;text-align:center;margin-top:20px;padding-top:20px;border-top:1px solid rgba(255,255,255,0.05);}
+
+  /* PRIVACY PAGE */
+  .privacy-page{display:none;padding:100px 24px 60px;}
+  .privacy-page.active{display:block;}
+  .privacy-inner{max-width:720px;margin:0 auto;}
+  .privacy-inner h1{font-family:'DM Serif Display',serif;font-size:36px;margin-bottom:8px;}
+  .privacy-inner h2{font-size:18px;font-weight:600;margin:28px 0 10px;}
+  .privacy-inner p{font-size:14px;color:var(--muted);line-height:1.8;margin-bottom:12px;}
+  .privacy-inner ul{padding-left:20px;margin-bottom:12px;}
+  .privacy-inner li{font-size:14px;color:var(--muted);line-height:1.8;}
+
+  /* RESPONSIVE */
+  @media(max-width:768px){
+    .nav-links{display:none;}
+    .step:not(:last-child)::after{display:none;}
+    .hero-stats{gap:24px;}
+    .footer-inner{flex-direction:column;align-items:flex-start;}
+  }
+  @media(max-width:480px){
+    .steps{grid-template-columns:1fr;}
+    .hero-cta-row{flex-direction:column;align-items:center;}
+    .btn-hero-primary,.btn-hero-secondary{width:100%;max-width:280px;text-align:center;}
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
+  .animate{opacity:0;animation:fadeUp 0.6s ease forwards;}
+  .animate-d1{animation-delay:0.1s;}
+  .animate-d2{animation-delay:0.2s;}
+  .animate-d3{animation-delay:0.3s;}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="#" class="nav-logo"><div class="nav-logo-mark">IM</div>InnerMap</a>
+    <div class="nav-links">
+      <a href="#how" class="nav-link">How it works</a>
+      <a href="#features" class="nav-link">Features</a>
+      <a href="#pricing" class="nav-link">Pricing</a>
+      <a href="#faq" class="nav-link">FAQ</a>
+    </div>
+    <a href="app.html" class="nav-cta">Start free →</a>
+  </div>
+</nav>
+
+<div id="main-content"><!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge"><div class="hero-badge-dot"></div>For Indian students aged 13–18</div>
+    <h1>Know <em>yourself,</em><br>find your path</h1>
+    <p class="hero-sub">A private self-discovery companion that helps you understand your interests, recognise your strengths, and explore your future — without pressure, without judgement, without anyone watching.</p>
+    <div class="hero-cta-row">
+      <a href="app.html" class="btn-hero-primary">Start my journey — it's free →</a>
+      <a href="#how" class="btn-hero-secondary">See how it works</a>
+    </div>
+    <p class="hero-note">No sign-up required · Completely private · Free to start</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="hero-stat-num">3</div><div class="hero-stat-label">Self-discovery quizzes</div></div>
+      <div class="hero-stat"><div class="hero-stat-num">24</div><div class="hero-stat-label">Personalised questions</div></div>
+      <div class="hero-stat"><div class="hero-stat-num">₹99</div><div class="hero-stat-label">Per month after free week</div></div>
+      <div class="hero-stat"><div class="hero-stat-num">0</div><div class="hero-stat-label">Adults who can see your answers</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- PROBLEM -->
+<section class="problem" id="problem">
+  <div class="container">
+    <div class="section-tag">The problem</div>
+    <h2 class="section-title">Indian students face real pressure</h2>
+    <p class="section-sub">Every year, millions of students are asked to make life-defining decisions before they even know who they are.</p>
+    <div class="problem-grid">
+      <div class="problem-card animate animate-d1">
+        <div class="problem-icon">😰</div>
+        <h3>Forced to decide too early</h3>
+        <p>Students at age 14–15 are expected to choose streams and career paths before they have explored anything. This creates anxiety, not direction.</p>
+      </div>
+      <div class="problem-card animate animate-d2">
+        <div class="problem-icon">👨‍👩‍👧</div>
+        <h3>Parents add more pressure</h3>
+        <p>Most parents push their own dreams onto their children — not out of harm, but out of love and fear. The result? Students stop being honest about what they actually want.</p>
+      </div>
+      <div class="problem-card animate animate-d3">
+        <div class="problem-icon">🏫</div>
+        <h3>Schools have no time</h3>
+        <p>One counsellor for 500 students. Guidance periods cancelled for exam prep. Students have nowhere safe to explore who they truly are.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="container">
+    <div class="section-tag">How InnerMap works</div>
+    <h2 class="section-title">Three steps to knowing yourself</h2>
+    <p class="section-sub">No sign-up needed. No data shared. Just you and your own honest answers.</p>
+    <div class="steps">
+      <div class="step animate animate-d1">
+        <div class="step-num">1</div>
+        <h3>Take 3 short quizzes</h3>
+        <p>Discover your interests, recognise your human skills, and explore what kind of future excites you. 8 honest questions each.</p>
+      </div>
+      <div class="step animate animate-d2">
+        <div class="step-num">2</div>
+        <h3>Get your private profile</h3>
+        <p>See your strengths, patterns, and possible pathways — built entirely from your own answers. No adult sees this unless you choose to share.</p>
+      </div>
+      <div class="step animate animate-d3">
+        <div class="step-num">3</div>
+        <h3>Grow week by week</h3>
+        <p>AI generates personalised check-in questions every week based on what you shared the week before. Your journey never ends.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features-bg" id="features">
+  <div class="container">
+    <div class="section-tag" style="color:#6EE7B7;">What you get</div>
+    <h2 class="section-title" style="color:var(--white);">Everything in one private space</h2>
+    <p class="section-sub" style="color:rgba(255,255,255,0.5);">Built for real Indian students — not the ideal version adults imagine.</p>
+    <div class="features-grid">
+      <div class="feature-item">
+        <div class="feature-item-icon" style="background:rgba(110,231,183,0.15);">✨</div>
+        <h3>3 self-discovery quizzes</h3>
+        <p>Interests, human skills, and future pathways. 24 questions written in the language real teenagers actually use.</p>
+        <span class="feature-tag-free">Free forever</span>
+      </div>
+      <div class="feature-item">
+        <div class="feature-item-icon" style="background:rgba(110,231,183,0.15);">🗺️</div>
+        <h3>Your InnerMap profile</h3>
+        <p>Thinker, Creator, Connector, or Builder — discover your natural profile and what it means for your future.</p>
+        <span class="feature-tag-free">Free forever</span>
+      </div>
+      <div class="feature-item">
+        <div class="feature-item-icon" style="background:rgba(110,231,183,0.15);">📓</div>
+        <h3>Private journal</h3>
+        <p>Write anything on your mind. Your mood, your thoughts, your fears. Nobody can read this — ever. It lives only on your device.</p>
+        <span class="feature-tag-free">Free forever</span>
+      </div>
+      <div class="feature-item">
+        <div class="feature-item-icon" style="background:rgba(109,40,217,0.2);">🤖</div>
+        <h3>AI weekly check-ins</h3>
+        <p>Every week, AI reads your previous answers and generates 5 questions written just for you. No two students ever get the same questions.</p>
+        <span class="feature-tag-paid">Premium — ₹99/month</span>
+      </div>
+      <div class="feature-item">
+        <div class="feature-item-icon" style="background:rgba(109,40,217,0.2);">📈</div>
+        <h3>Growth tracking</h3>
+        <p>Streak counter, 6 milestones to unlock, and a progress dashboard that shows how your thinking has shifted over time.</p>
+        <span class="feature-tag-paid">Premium — ₹99/month</span>
+      </div>
+      <div class="feature-item">
+        <div class="feature-item-icon" style="background:rgba(109,40,217,0.2);">🔄</div>
+        <h3>Retake and compare</h3>
+        <p>Retake any quiz after 3 months and see how you have grown. Your 13-year-old self and your 16-year-old self will be very different.</p>
+        <span class="feature-tag-paid">Premium — ₹99/month</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <div class="container">
+    <div class="section-tag">Simple pricing</div>
+    <h2 class="section-title">Start free. Stay as long as you need.</h2>
+    <p class="section-sub">No tricks. No hidden fees. Cancel anytime. Pay from your own pocket without asking anyone.</p>
+    <div class="pricing-grid">
+      <div class="pricing-card">
+        <div class="pricing-name">Free — Week 1</div>
+        <div class="pricing-amount">₹0</div>
+        <div class="pricing-period">No credit card needed</div>
+        <div class="pricing-features">
+          <div class="pricing-feat"><span class="pricing-feat-icon">✓</span>All 3 self-discovery quizzes</div>
+          <div class="pricing-feat"><span class="pricing-feat-icon">✓</span>Your complete InnerMap profile</div>
+          <div class="pricing-feat"><span class="pricing-feat-icon">✓</span>Private journal — unlimited entries</div>
+          <div class="pricing-feat"><span class="pricing-feat-icon">✓</span>7 days of guided next steps</div>
+          <div class="pricing-feat"><span class="pricing-feat-icon no">✗</span>AI weekly check-ins</div>
+          <div class="pricing-feat"><span class="pricing-feat-icon no">✗</span>Growth tracking and streaks</div>
+          <div class="pricing-feat"><span class="pricing-feat-icon no">✗</span>Retake quizzes and compare</div>
+        </div>
+        <a href="app.html" class="pricing-cta pricing-cta-free">Start free →</a>
+      </div>
+      <div class="pricing-card featured">
+        <div class="pricing-badge">Most popular</div>
+        <div class="pricing-name">Premium — Monthly</div>
+        <div class="pricing-amount">₹99</div>
+        <div class="pricing-period">per month · cancel anytime</div>
+        <div class="pricing-features">
+          <div class="pricing-feat"><span class="pricing-feat-icon">✓</span>Everything in free</div>
+          <div class="pricing-feat"><span class="pricing-feat-icon">✓</span>AI-personalised weekly check-ins</div>
+          <div class="pricing-feat"><span class="pricing-feat-icon">✓</span>Full growth tracking and streaks</div>
+          <div class="pricing-feat"><span class="pricing-feat-icon">✓</span>Retake quizzes — see your growth</div>
+          <div class="pricing-feat"><span class="pricing-feat-icon">✓</span>6 milestones to unlock</div>
+          <div class="pricing-feat"><span class="pricing-feat-icon">✓</span>Progress certificate every 3 months</div>
+          <div class="pricing-feat"><span class="pricing-feat-icon">✓</span>Pay via UPI, GPay, PhonePe, card</div>
+        </div>
+        <a href="app.html" class="pricing-cta pricing-cta-paid">Start free, then upgrade →</a>
+      </div>
+    </div>
+    <p style="font-size:13px;color:var(--muted);text-align:center;margin-top:20px;">₹99 is just 2 Maggi packets a month. You can pay from your own pocket — no need to ask anyone.</p>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testi-bg" id="testimonials">
+  <div class="container">
+    <div class="section-tag">What students say</div>
+    <h2 class="section-title">Real students. Real discoveries.</h2>
+    <p class="section-sub">Students across India using InnerMap to understand themselves better — quietly and privately.</p>
+    <div class="testi-grid">
+      <div class="testi-card animate animate-d1">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">"I always thought I was just lazy because nothing at school excited me. InnerMap showed me I'm actually a Creator — I just needed the right space to explore. Now I'm taking a photography course and loving it."</p>
+        <div class="testi-author">
+          <div class="testi-avatar" style="background:#0F766E;">P</div>
+          <div><div class="testi-name">Priya S.</div><div class="testi-role">Class 11 · Pune</div></div>
+        </div>
+      </div>
+      <div class="testi-card animate animate-d2">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">"My parents wanted me to do Engineering. After InnerMap I realised I'm a Connector — I genuinely care about people. I'm now looking at psychology and social work. First time I feel excited about my future."</p>
+        <div class="testi-author">
+          <div class="testi-avatar" style="background:#B45309;">A</div>
+          <div><div class="testi-name">Arjun M.</div><div class="testi-role">Class 12 · Hyderabad</div></div>
+        </div>
+      </div>
+      <div class="testi-card animate animate-d3">
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">"The honest option in every question — where you admit you don't know — that's what got me. No other app gives you permission to not know. InnerMap felt like a friend who actually understood me."</p>
+        <div class="testi-author">
+          <div class="testi-avatar" style="background:#BE185D;">R</div>
+          <div><div class="testi-name">Riya K.</div><div class="testi-role">Class 9 · Delhi</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="container">
+    <div class="section-tag">Questions</div>
+    <h2 class="section-title">Frequently asked questions</h2>
+    <div class="faq-list">
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q"><span class="faq-q-text">Can my parents or teachers see my answers?</span><span class="faq-icon">+</span></div>
+        <div class="faq-a">No. Your answers are stored only on your own device. InnerMap does not store your data on any server. Nobody — including us — can ever see what you write. Your journal, your quiz answers, your profile — all of it belongs only to you.</div>
+      </div>
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q"><span class="faq-q-text">Is InnerMap really free to start?</span><span class="faq-icon">+</span></div>
+        <div class="faq-a">Yes. You can complete all 3 quizzes, see your full profile, and use the private journal completely free. After your free week, you can continue the deeper growth journey for ₹99 per month — paid via UPI, GPay, PhonePe, or card. You can cancel anytime.</div>
+      </div>
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q"><span class="faq-q-text">What if I don't know what I want — can I still use InnerMap?</span><span class="faq-icon">+</span></div>
+        <div class="faq-a">That is exactly who InnerMap is built for. Every quiz has an honest option for students who don't know yet. If you pick mostly those, InnerMap gives you a special response — not a result, but a warm, guided path to start discovering. Not knowing is the beginning, not a failure.</div>
+      </div>
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q"><span class="faq-q-text">How is the AI weekly check-in personalised?</span><span class="faq-icon">+</span></div>
+        <div class="faq-a">When you start Week 2, InnerMap reads all your Week 1 answers and uses AI to generate 5 questions written specifically for you. If you said you love watching documentary content, your Week 2 question might ask what specifically fascinated you. No two students ever get the same questions.</div>
+      </div>
+      <div class="faq-item" onclick="toggleFaq(this)">
+        <div class="faq-q"><span class="faq-q-text">Is InnerMap only for students who are confused about careers?</span><span class="faq-icon">+</span></div>
+        <div class="faq-a">InnerMap is not a career guidance tool. It is a self-discovery companion. Even students who know what they want to do will benefit — because understanding yourself deeply makes you better at everything you choose. InnerMap helps you grow as a person, not just pick a stream.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final-cta">
+  <h2>Your journey starts<br>with one honest answer.</h2>
+  <p>No sign-up. No pressure. No one watching. Just you, discovering who you really are — one question at a time.</p>
+  <a href="app.html" class="btn-hero-primary">Start my InnerMap — free →</a>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">InnerMap</div>
+    <div class="footer-links">
+      <a href="#how" class="footer-link">How it works</a>
+      <a href="#pricing" class="footer-link">Pricing</a>
+      <a href="#faq" class="footer-link">FAQ</a>
+      <a href="javascript:showPrivacy()" class="footer-link">Privacy Policy</a>
+      <a href="/cdn-cgi/l/email-protection#9bf2e8f3faf5effef8e8fee9edfedbfcf6faf2f7b5f8f4f6" class="footer-link" href="mailto:ishantecserve@gmail.com">Contact</a>
+    </div>
+  </div>
+  <div class="footer-copy">© 2025 InnerMap · Made in India · For Indian students · ishantecserve@gmail.com </div>
+</footer>
+
+</div><!-- end main-content -->
+<!-- PRIVACY POLICY PAGE (shown inline) -->
+<div class="privacy-page" id="privacy-page">
+  <div class="privacy-inner">
+    <p style="font-size:13px;color:var(--muted);margin-bottom:8px;cursor:pointer;" onclick="hidePrivacy()">← Back to InnerMap</p>
+    <h1>Privacy Policy</h1>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:24px;">Last updated: January 2025</p>
+
+    <h2>1. Our core promise</h2>
+    <p>InnerMap is built on one fundamental principle: your answers belong only to you. We do not collect, store, or transmit any of your quiz answers, journal entries, or personal reflections to any server. All data is stored locally on your own device.</p>
+
+    <h2>2. What data we collect</h2>
+    <p>InnerMap collects the absolute minimum required to provide the service:</p>
+    <ul>
+      <li>Your first name (entered voluntarily at start — stored locally only)</li>
+      <li>Quiz answers (stored locally on your device only)</li>
+      <li>Journal entries (stored locally on your device only)</li>
+      <li>Payment information (processed securely by Razorpay — we never see your card or UPI details)</li>
+    </ul>
+
+    <h2>3. What we do NOT collect</h2>
+    <ul>
+      <li>We do not collect your phone number or email address</li>
+      <li>We do not track your location</li>
+      <li>We do not share any data with parents, schools, or third parties</li>
+      <li>We do not use cookies for advertising</li>
+      <li>We do not sell your data to anyone</li>
+    </ul>
+
+    <h2>4. AI weekly check-in</h2>
+    <p>When you use the AI weekly check-in feature (Premium), your anonymised quiz answers are sent to the AI model to generate personalised questions. These are processed in real time and not stored. The AI cannot identify you personally.</p>
+
+    <h2>5. Payments</h2>
+    <p>All payments are processed by Razorpay, a licensed payment gateway regulated by the Reserve Bank of India. InnerMap never sees or stores your payment card details, UPI ID, or bank information. Razorpay's privacy policy governs their data handling.</p>
+
+    <h2>6. Children's privacy</h2>
+    <p>InnerMap is designed for users aged 13 and above. We take the privacy of young users extremely seriously. Because all data is stored locally and we collect no personal identifiable information, InnerMap is among the most privacy-safe platforms available for students in India.</p>
+
+    <h2>7. Your rights</h2>
+    <p>You can delete all your InnerMap data at any time by clearing your browser's local storage or uninstalling the app. Because we store nothing on our servers, this permanently removes all your information.</p>
+
+    <h2>8. Contact us</h2>
+    <p>If you have any questions about this privacy policy, please contact us at: <strong>ishantecserve@gmail.com@gmail.com — ishantecserve@gmail.com</strong></p>
+  </div>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+function toggleFaq(el){
+  el.classList.toggle('open');
+}
+
+function showPrivacy(){
+  document.getElementById('main-content').style.display='none';
+  document.getElementById('privacy-page').style.display='block';
+  document.querySelector('.nav').style.display='none';
+  window.scrollTo(0,0);
+}
+
+function hidePrivacy(){
+  document.getElementById('privacy-page').style.display='none';
+  document.getElementById('main-content').style.display='block';
+  document.querySelector('.nav').style.display='block';
+  window.scrollTo(0,0);
+}
+
+const observer = new IntersectionObserver(function(entries){
+  entries.forEach(function(e){
+    if(e.isIntersecting) e.target.style.animationPlayState='running';
+  });
+},{threshold:0.1});
+document.querySelectorAll('.animate').forEach(function(el){
+  el.style.animatio

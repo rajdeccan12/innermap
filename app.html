@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>InnerMap — Know yourself, find your path</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<style>
+  :root {
+    --cream:#FAF7F2;--ink:#1C1917;--muted:#78716C;--border:#E7E3DC;
+    --teal:#0F766E;--teal-light:#CCFBF1;--amber:#B45309;--amber-light:#FEF3C7;
+    --rose:#BE185D;--rose-light:#FCE7F3;--sand:#F5F0E8;--white:#FFFFFF;
+    --purple:#6D28D9;--purple-light:#EDE9FE;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--cream);color:var(--ink);min-height:100vh;overflow-x:hidden;}
+  .screen{display:none;min-height:100vh;flex-direction:column;}
+  .screen.active{display:flex;}
+  #screen-quiz,#screen-processing{display:none;flex-direction:column;}
+  #screen-quiz.active,#screen-processing.active{display:flex;}
+
+  /* NAV */
+  .nav{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;background:var(--white);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;}
+  .nav-logo{font-family:'DM Serif Display',serif;font-size:20px;color:var(--ink);display:flex;align-items:center;gap:8px;}
+  .nav-logo span{width:28px;height:28px;border-radius:8px;background:var(--ink);color:var(--cream);display:flex;align-items:center;justify-content:center;font-size:14px;}
+  .nav-back{font-size:13px;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:4px;}
+
+  /* HOME */
+  .home-hero{background:var(--ink);padding:48px 24px 40px;text-align:center;position:relative;overflow:hidden;}
+  .home-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 50%,rgba(15,118,110,0.3) 0%,transparent 60%),radial-gradient(ellipse at 70% 30%,rgba(180,83,9,0.2) 0%,transparent 60%);}
+  .home-hero-content{position:relative;z-index:1;}
+  .home-tagline{font-size:11px;letter-spacing:2px;color:rgba(255,255,255,0.5);text-transform:uppercase;margin-bottom:16px;}
+  .home-title{font-family:'DM Serif Display',serif;font-size:36px;line-height:1.15;color:var(--white);margin-bottom:12px;}
+  .home-title em{font-style:italic;color:#6EE7B7;}
+  .home-sub{font-size:14px;color:rgba(255,255,255,0.6);line-height:1.7;max-width:300px;margin:0 auto 32px;}
+  .who-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:0 24px 32px;background:var(--ink);position:relative;z-index:1;}
+  .who-btn{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:16px;padding:18px 10px;text-align:center;cursor:pointer;transition:all 0.2s;color:var(--white);}
+  .who-btn:hover{background:rgba(255,255,255,0.14);transform:translateY(-2px);}
+  .who-emoji{font-size:26px;margin-bottom:8px;}
+  .who-label{font-size:12px;font-weight:600;margin-bottom:2px;}
+  .who-sub{font-size:10px;color:rgba(255,255,255,0.45);}
+  .home-body{padding:24px 20px;flex:1;}
+  .section-title{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:14px;}
+
+  /* FEATURE CARDS */
+  .feature-card{background:var(--white);border:1px solid var(--border);border-radius:18px;padding:20px;margin-bottom:12px;cursor:pointer;transition:all 0.2s;display:flex;gap:16px;align-items:flex-start;}
+  .feature-card:hover{transform:translateY(-2px);border-color:#C4B8A8;}
+  .feature-icon{width:46px;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+  .fi-teal{background:var(--teal-light);}.fi-amber{background:var(--amber-light);}.fi-rose{background:var(--rose-light);}.fi-purple{background:var(--purple-light);}
+  .feature-info{flex:1;}
+  .feature-title{font-size:15px;font-weight:600;margin-bottom:4px;}
+  .feature-desc{font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:8px;}
+  .feature-tag{font-size:10px;font-weight:600;padding:3px 10px;border-radius:20px;display:inline-block;}
+  .tag-teal{background:var(--teal-light);color:var(--teal);}
+  .tag-amber{background:var(--amber-light);color:var(--amber);}
+  .tag-rose{background:var(--rose-light);color:var(--rose);}
+  .tag-purple{background:var(--purple-light);color:var(--purple);}
+  .feature-arrow{color:var(--border);font-size:18px;align-self:center;}
+
+  /* QUIZ TRACKER */
+  .quiz-tracker{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px 20px;background:var(--white);border-bottom:1px solid var(--border);}
+  .tracker-step{display:flex;flex-direction:column;align-items:center;gap:4px;}
+  .tracker-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;border:2px solid var(--border);color:var(--muted);transition:all 0.3s;}
+  .tracker-dot.done{background:var(--teal);border-color:var(--teal);color:white;}
+  .tracker-dot.active{background:var(--ink);border-color:var(--ink);color:white;}
+  .tracker-label{font-size:9px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;}
+  .tracker-line{width:30px;height:2px;background:var(--border);border-radius:1px;margin-bottom:14px;transition:background 0.3s;}
+  .tracker-line.done{background:var(--teal);}
+
+  /* QUIZ */
+  #screen-quiz{height:100vh;overflow:hidden;}
+  .quiz-header{padding:16px 20px 14px;background:var(--white);border-bottom:1px solid var(--border);flex-shrink:0;}
+  .quiz-progress-label{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:8px;}
+  .progress-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden;}
+  .progress-fill{height:100%;background:var(--teal);border-radius:2px;transition:width 0.4s ease;}
+  .quiz-body{padding:20px;flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+  .quiz-category{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--teal);margin-bottom:8px;}
+  .quiz-question{font-family:'DM Serif Display',serif;font-size:20px;line-height:1.4;color:var(--ink);margin-bottom:20px;}
+  .quiz-options{display:flex;flex-direction:column;gap:10px;}
+  .quiz-option{background:var(--white);border:1.5px solid var(--border);border-radius:14px;padding:14px 16px;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;gap:14px;font-size:14px;color:var(--ink);font-weight:500;line-height:1.4;}
+  .quiz-option:hover{border-color:var(--teal);background:var(--teal-light);}
+  .quiz-option.selected{border-color:var(--teal);background:var(--teal-light);color:var(--teal);}
+  .quiz-option-dot{width:20px;height:20px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;transition:all 0.15s;}
+  .quiz-option.selected .quiz-option-dot{background:var(--teal);border-color:var(--teal);}
+  @keyframes slideIn{from{opacity:0;transform:translateX(30px);}to{opacity:1;transform:translateX(0);}}
+  .quiz-slide{animation:slideIn 0.3s ease forwards;}
+
+  /* PROCESSING */
+  #screen-processing{height:100vh;align-items:center;justify-content:center;background:var(--ink);}
+  .processing-logo{font-family:'DM Serif Display',serif;font-size:28px;color:white;margin-bottom:40px;}
+  .processing-orb{width:80px;height:80px;border-radius:50%;border:3px solid rgba(110,231,183,0.3);border-top-color:#6EE7B7;animation:spin 1s linear infinite;margin-bottom:32px;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .processing-steps{display:flex;flex-direction:column;gap:12px;}
+  .processing-step{display:flex;align-items:center;gap:12px;font-size:13px;color:rgba(255,255,255,0.4);transition:color 0.5s;}
+  .processing-step.lit{color:rgba(255,255,255,0.9);}
+  .processing-step-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.2);transition:background 0.5s;flex-shrink:0;}
+  .processing-step.lit .processing-step-dot{background:#6EE7B7;}
+
+  /* RESULTS */
+  .results-header{background:var(--ink);padding:28px 24px;text-align:center;}
+  .results-badge{display:inline-block;background:rgba(110,231,183,0.15);border:1px solid rgba(110,231,183,0.3);border-radius:20px;padding:6px 16px;font-size:11px;color:#6EE7B7;letter-spacing:1px;text-transform:uppercase;margin-bottom:14px;}
+  .results-name{font-family:'DM Serif Display',serif;font-size:26px;color:var(--white);margin-bottom:6px;}
+  .results-sub{font-size:13px;color:rgba(255,255,255,0.5);}
+  .results-body{padding:24px 20px;flex:1;}
+  .profile-card{background:var(--white);border:1px solid var(--border);border-radius:18px;padding:20px;margin-bottom:12px;}
+  .profile-label{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;}
+  .profile-name{font-size:20px;font-family:'DM Serif Display',serif;margin-bottom:8px;}
+  .profile-desc{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:14px;}
+  .profile-bar-wrap{height:6px;background:var(--border);border-radius:3px;margin-bottom:6px;overflow:hidden;}
+  .profile-bar{height:100%;border-radius:3px;}
+  .profile-pct{font-size:11px;font-weight:600;}
+  .nudge-card{background:var(--ink);border-radius:20px;padding:28px 24px;margin-bottom:16px;text-align:center;}
+  .nudge-emoji{font-size:36px;margin-bottom:14px;}
+  .nudge-title{font-family:'DM Serif Display',serif;font-size:22px;color:white;margin-bottom:8px;line-height:1.3;}
+  .nudge-sub{font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:24px;line-height:1.6;}
+  .nudge-btn{width:100%;padding:15px;background:#6EE7B7;color:var(--ink);border:none;border-radius:14px;font-size:15px;font-weight:600;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;transition:all 0.2s;}
+  .nudge-skip{font-size:12px;color:rgba(255,255,255,0.3);margin-top:14px;cursor:pointer;}
+
+  /* PAYWALL */
+  .paywall-header{background:linear-gradient(135deg,#6D28D9,#4C1D95);padding:36px 24px;text-align:center;}
+  .paywall-title{font-family:'DM Serif Display',serif;font-size:28px;color:white;margin-bottom:8px;line-height:1.3;}
+  .paywall-sub{font-size:13px;color:rgba(255,255,255,0.6);line-height:1.6;}
+  .paywall-body{padding:24px 20px;flex:1;}
+  .paywall-price{background:var(--white);border:1px solid var(--border);border-radius:18px;padding:24px;text-align:center;margin-bottom:16px;}
+  .paywall-amount{font-family:'DM Serif Display',serif;font-size:48px;color:var(--ink);line-height:1;}
+  .paywall-period{font-size:13px;color:var(--muted);margin-top:4px;margin-bottom:16px;}
+  .paywall-features{text-align:left;margin-bottom:20px;}
+  .paywall-feat{display:flex;align-items:flex-start;gap:10px;font-size:13px;padding:6px 0;color:var(--ink);}
+  .paywall-feat-dot{width:18px;height:18px;border-radius:50%;background:var(--teal-light);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--teal);flex-shrink:0;margin-top:1px;}
+  .pay-btn{width:100%;padding:16px;background:var(--purple);color:white;border:none;border-radius:14px;font-size:16px;font-weight:600;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;transition:all 0.2s;margin-bottom:10px;}
+  .pay-btn:hover{background:#5B21B6;}
+  .pay-note{font-size:11px;color:var(--muted);text-align:center;line-height:1.6;}
+
+  /* PROGRESS SCREEN */
+  .progress-header{background:var(--ink);padding:28px 24px;text-align:center;}
+  .progress-title{font-family:'DM Serif Display',serif;font-size:24px;color:white;margin-bottom:6px;}
+  .progress-sub{font-size:13px;color:rgba(255,255,255,0.5);}
+  .streak-row{display:flex;gap:12px;margin-bottom:16px;}
+  .streak-box{flex:1;background:var(--white);border:1px solid var(--border);border-radius:16px;padding:16px;text-align:center;}
+  .streak-num{font-family:'DM Serif Display',serif;font-size:32px;color:var(--ink);}
+  .streak-label{font-size:11px;color:var(--muted);margin-top:4px;}
+  .milestone-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
+  .milestone{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:14px 10px;text-align:center;transition:all 0.2s;}
+  .milestone.unlocked{border-color:var(--teal);background:var(--teal-light);}
+  .milestone.locked{opacity:0.4;}
+  .milestone-icon{font-size:24px;margin-bottom:6px;}
+  .milestone-name{font-size:11px;font-weight:600;color:var(--ink);}
+  .milestone-desc{font-size:10px;color:var(--muted);margin-top:2px;}
+
+  /* WEEK 2 AI SCREEN */
+  .week2-header{background:linear-gradient(135deg,#0F766E,#0D6660);padding:28px 24px;text-align:center;}
+  .week2-title{font-family:'DM Serif Display',serif;font-size:24px;color:white;margin-bottom:6px;}
+  .week2-sub{font-size:13px;color:rgba(255,255,255,0.6);line-height:1.6;}
+  .ai-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(110,231,183,0.15);border:1px solid rgba(110,231,183,0.3);border-radius:20px;padding:5px 14px;font-size:11px;color:#6EE7B7;margin-top:12px;}
+  .week2-body{padding:24px 20px;flex:1;}
+  .week2-question{font-family:'DM Serif Display',serif;font-size:22px;line-height:1.4;color:var(--ink);margin-bottom:24px;}
+  .week2-input{width:100%;padding:16px;background:var(--white);border:1.5px solid var(--border);border-radius:14px;font-size:14px;font-family:'Plus Jakarta Sans',sans-serif;color:var(--ink);outline:none;resize:none;min-height:120px;transition:border 0.2s;}
+  .week2-input:focus{border-color:var(--teal);}
+  .week2-hint{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.5;}
+  .week2-loading{text-align:center;padding:40px 20px;}
+  .week2-loading-text{font-size:14px;color:var(--muted);margin-top:16px;}
+
+  /* JOURNAL */
+  .journal-header{background:linear-gradient(135deg,#BE185D,#9D174D);padding:28px 24px;text-align:center;}
+  .journal-title{font-family:'DM Serif Display',serif;font-size:24px;color:white;margin-bottom:6px;}
+  .journal-sub{font-size:13px;color:rgba(255,255,255,0.6);}
+  .journal-body{padding:24px 20px;flex:1;}
+  .journal-compose{background:var(--white);border:1px solid var(--border);border-radius:18px;padding:20px;margin-bottom:16px;}
+  .journal-textarea{width:100%;padding:14px;background:var(--sand);border:1px solid var(--border);border-radius:12px;font-size:14px;font-family:'Plus Jakarta Sans',sans-serif;color:var(--ink);outline:none;resize:none;min-height:100px;transition:border 0.2s;}
+  .journal-textarea:focus{border-color:var(--rose);}
+  .journal-entry{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:10px;}
+  .journal-entry-date{font-size:11px;color:var(--muted);margin-bottom:6px;}
+  .journal-entry-text{font-size:13px;color:var(--ink);line-height:1.6;}
+  .journal-mood{display:flex;gap:8px;margin-bottom:12px;}
+  .mood-btn{flex:1;padding:10px;border:1.5px solid var(--border);border-radius:10px;font-size:18px;text-align:center;cursor:pointer;transition:all 0.15s;background:var(--white);}
+  .mood-btn.selected{border-color:var(--rose);background:var(--rose-light);}
+
+
+  /* PROMO CODE */
+  .promo-wrap{margin:16px 0 0;}
+  .promo-label{font-size:12px;font-weight:600;color:var(--muted);margin-bottom:8px;display:block;text-transform:uppercase;letter-spacing:0.5px;}
+  .promo-row{display:flex;gap:8px;}
+  .promo-input{flex:1;padding:12px 14px;background:var(--sand);border:1.5px solid var(--border);border-radius:12px;font-size:14px;font-family:'Plus Jakarta Sans',sans-serif;color:var(--ink);outline:none;text-transform:uppercase;letter-spacing:1px;transition:border 0.2s;}
+  .promo-input:focus{border-color:var(--teal);}
+  .promo-input.error{border-color:#EF4444;background:#FEF2F2;}
+  .promo-input.success{border-color:var(--teal);background:var(--teal-light);}
+  .promo-btn{padding:12px 16px;background:var(--ink);color:white;border:none;border-radius:12px;font-size:13px;font-weight:600;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;white-space:nowrap;transition:all 0.2s;}
+  .promo-btn:hover{background:#2C2826;}
+  .promo-msg{font-size:12px;margin-top:8px;padding:8px 12px;border-radius:8px;display:none;}
+  .promo-msg.error{display:block;background:#FEF2F2;color:#DC2626;}
+  .promo-msg.success{display:block;background:var(--teal-light);color:var(--teal);}
+  .promo-divider{display:flex;align-items:center;gap:12px;margin:16px 0;color:var(--muted);font-size:12px;}
+  .promo-divider::before,.promo-divider::after{content:'';flex:1;height:1px;background:var(--border);}
+  /* SHARED */
+  .btn-primary{width:100%;padding:15px;background:var(--ink);color:var(--white);border:none;border-radius:14px;font-size:15px;font-weight:600;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;transition:all 0.2s;}
+  .btn-primary:hover{background:#2C2826;}
+  .school-header{background:linear-gradient(135deg,#1C1917,#292524);padding:32px 24px;text-align:center;}
+  .school-title{font-family:'DM Serif Display',serif;font-size:26px;color:var(--white);line-height:1.3;margin-bottom:8px;}
+  .school-sub{font-size:13px;color:rgba(255,255,255,0.5);line-height:1.6;}
+  .school-body{padding:24px 20px;flex:1;}
+  .school-form-group{margin-bottom:18px;}
+  .school-label{font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px;display:block;text-transform:uppercase;letter-spacing:0.5px;}
+  .school-input{width:100%;padding:13px 16px;background:var(--white);border:1.5px solid var(--border);border-radius:12px;font-size:14px;font-family:'Plus Jakarta Sans',sans-serif;color:var(--ink);outline:none;transition:border 0.2s;}
+  .school-input:focus{border-color:var(--teal);}
+  .school-options{display:flex;flex-direction:column;gap:8px;}
+  .school-option{background:var(--white);border:1.5px solid var(--border);border-radius:12px;padding:13px 16px;cursor:pointer;font-size:13px;font-weight:500;transition:all 0.15s;display:flex;align-items:center;gap:10px;}
+  .school-option:hover{border-color:var(--amber);}
+  .school-option.selected{border-color:var(--amber);background:var(--amber-light);color:var(--amber);}
+  .school-option-dot{width:18px;height:18px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;}
+  .school-option.selected .school-option-dot{background:var(--amber);border-color:var(--amber);}
+  .report-header{background:var(--ink);padding:28px 24px;text-align:center;}
+  .report-score-ring{width:90px;height:90px;margin:0 auto 16px;border-radius:50%;background:conic-gradient(#6EE7B7 0% 62%,rgba(255,255,255,0.1) 62% 100%);display:flex;align-items:center;justify-content:center;}
+  .report-score-inner{width:70px;height:70px;border-radius:50%;background:var(--ink);display:flex;align-items:center;justify-content:center;flex-direction:column;}
+  .report-score-num{font-size:22px;font-weight:600;color:var(--white);line-height:1;}
+  .report-score-label{font-size:9px;color:rgba(255,255,255,0.4);}
+  .report-school-name{font-family:'DM Serif Display',serif;font-size:22px;color:var(--white);margin-bottom:4px;}
+  .report-date{font-size:11px;color:rgba(255,255,255,0.4);}
+  .report-body{padding:24px 20px;flex:1;}
+  .report-gap{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:10px;}
+  .report-gap-top{display:flex;align-items:center;gap:10px;margin-bottom:6px;}
+  .gap-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+  .gap-red{background:#EF4444;}.gap-amber{background:#F59E0B;}.gap-green{background:#10B981;}
+  .report-gap-title{font-size:13px;font-weight:600;}
+  .report-gap-desc{font-size:12px;color:var(--muted);line-height:1.5;}
+  .pilot-step{background:var(--sand);border:1px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:10px;display:flex;gap:14px;align-items:flex-start;}
+  .pilot-week{background:var(--ink);color:var(--white);border-radius:10px;padding:6px 10px;font-size:10px;font-weight:600;text-align:center;min-width:48px;flex-shrink:0;}
+  .pilot-week span{display:block;font-size:14px;}
+  .pilot-title{font-size:13px;font-weight:600;margin-bottom:4px;}
+  .pilot-desc{font-size:12px;color:var(--muted);line-height:1.5;}
+
+  /* BOTTOM NAV */
+  .bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--white);border-top:1px solid var(--border);display:flex;padding:10px 0 14px;z-index:50;}
+  .bnav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;transition:color 0.15s;color:var(--muted);font-size:9px;font-weight:600;}
+  .bnav-item.active{color:var(--teal);}
+  .bnav-icon{font-size:18px;}
+  .has-bottom-nav{padding-bottom:70px;}
+
+  /* WELCOME */
+  .welcome{position:fixed;inset:0;background:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;padding:40px 24px;text-align:center;}
+  .welcome-logo{font-family:'DM Serif Display',serif;font-size:42px;color:var(--white);margin-bottom:4px;}
+  .welcome-tagline{font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:32px;letter-spacing:1px;}
+  .welcome-name-input{width:100%;max-width:280px;padding:14px 18px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);border-radius:14px;font-size:16px;font-family:'Plus Jakarta Sans',sans-serif;color:white;outline:none;text-align:center;margin-bottom:16px;}
+  .welcome-name-input::placeholder{color:rgba(255,255,255,0.3);}
+  .welcome-desc{font-size:14px;color:rgba(255,255,255,0.6);line-height:1.7;max-width:280px;margin-bottom:24px;}
+  .welcome-btn{background:var(--white);color:var(--ink);border:none;border-radius:16px;padding:16px 40px;font-size:16px;font-weight:600;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;transition:all 0.2s;width:100%;max-width:280px;}
+
+  @keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+  .fade-up{animation:fadeUp 0.4s ease forwards;}
+  .fade-up-2{animation:fadeUp 0.4s ease 0.1s forwards;opacity:0;}
+  .fade-up-3{animation:fadeUp 0.4s ease 0.2s forwards;opacity:0;}
+</style>
+</head>
+<body>
+
+<!-- WELCOME -->
+<div class="welcome" id="welcome">
+  <div class="welcome-logo">InnerMap</div>
+  <div class="welcome-tagline">Know yourself · Find your path</div>
+  <div class="welcome-desc">Your private space to discover who you are — no judgement, no pressure, no one watching.</div>
+  <input class="welcome-name-input" type="text" id="student-name-input" placeholder="What's your first name?" maxlength="30">
+  <button class="welcome-btn" onclick="startApp()">Start my journey →</button>
+  <p style="font-size:11px;color:rgba(255,255,255,0.25);margin-top:14px;line-height:1.6;max-width:260px;text-align:center;">Your progress is saved on this device.<br>Come back anytime — everything will be where you left it.</p>
+</div>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav" id="bottomNav" style="display:none;">
+  <div class="bnav-item active" onclick="showScreen('home')" id="bnav-home"><div class="bnav-icon">🏠</div>Home</div>
+  <div class="bnav-item" onclick="showScreen('student')" id="bnav-student"><div class="bnav-icon">🎒</div>Discover</div>
+  <div class="bnav-item" onclick="showScreen('progress')" id="bnav-progress"><div class="bnav-icon">📈</div>Progress</div>
+  <div class="bnav-item" onclick="showScreen('journal')" id="bnav-journal"><div class="bnav-icon">📓</div>Journal</div>
+  <div class="bnav-item" onclick="showScreen('school')" id="bnav-school"><div class="bnav-icon">🏫</div>School</div>
+</nav>
+
+<!-- HOME -->
+<div class="screen has-bottom-nav" id="screen-home">
+  <nav class="nav">
+    <div class="nav-logo"><span>IM</span> InnerMap</div>
+    <div style="font-size:12px;color:var(--muted);" id="home-greeting">Hi there 👋</div>
+  </nav>
+  <div class="home-hero">
+    <div class="home-hero-content">
+      <div class="home-tagline">Private · Personal · Yours</div>
+      <h1 class="home-title">Know <em>yourself,</em><br>find your path</h1>
+      <p class="home-sub">Your private self-discovery companion. No adults. No judgement. Just you.</p>
+    </div>
+  </div>
+  <div class="who-grid">
+    <div class="who-btn" onclick="showScreen('student')"><div class="who-emoji">🧭</div><div class="who-label">Start discovery</div><div class="who-sub">3 quizzes · 10 mins</div></div>
+    <div class="who-btn" onclick="showScreen('progress')"><div class="who-emoji">📈</div><div class="who-label">My progress</div><div class="who-sub">Streak & milestones</div></div>
+  </div>
+  <div class="home-body">
+    <div class="section-title">Your journey</div>
+    <div class="feature-card fade-up" onclick="showScreen('student')">
+      <div class="feature-icon fi-teal">✨</div>
+      <div class="feature-info"><div class="feature-title">Self-discovery quizzes</div><div class="feature-desc">Interests, human skills, and future pathways — all in one private session.</div><span class="feature-tag tag-teal" id="home-quiz-status">Free · Start now</span></div>
+      <div class="feature-arrow">›</div>
+    </div>
+    <div class="feature-card fade-up-2" onclick="showScreen('week2')">
+      <div class="feature-icon fi-purple">🤖</div>
+      <div class="feature-info"><div class="feature-title">AI weekly check-in</div><div class="feature-desc">Personalised questions generated just for you based on your previous answers.</div><span class="feature-tag tag-purple" id="home-week2-status">Complete Week 1 first</span></div>
+      <div class="feature-arrow">›</div>
+    </div>
+    <div class="feature-card fade-up-3" onclick="showScreen('journal')">
+      <div class="feature-icon fi-rose">📓</div>
+      <div class="feature-info"><div class="feature-title">Private journal</div><div class="feature-desc">Write your thoughts. Nobody can read this. It's only yours.</div><span class="feature-tag tag-rose">Private · Always free</span></div>
+      <div class="feature-arrow">›</div>
+    </div>
+  </div>
+</div>
+
+<!-- STUDENT / DISCOVER -->
+<div class="screen has-bottom-nav" id="screen-student">
+  <nav class="nav">
+    <div class="nav-back" onclick="showScreen('home')">‹ Back</div>
+    <div class="nav-logo"><span>IM</span> InnerMap</div>
+    <div style="width:50px;"></div>
+  </nav>
+  <div class="school-header" style="background:linear-gradient(135deg,#0F766E,#0D6660);">
+    <div class="school-title">Your self-discovery<br>journey</div>
+    <div class="school-sub">3 quizzes · 10 minutes · Completely private</div>
+  </div>
+  <div class="quiz-tracker" id="quiz-tracker">
+    <div class="tracker-step"><div class="tracker-dot" id="tdot-1">1</div><div class="tracker-label">Interests</div></div>
+    <div class="tracker-line" id="tline-1"></div>
+    <div class="tracker-step"><div class="tracker-dot" id="tdot-2">2</div><div class="tracker-label">Skills</div></div>
+    <div class="tracker-line" id="tline-2"></div>
+    <div class="tracker-step"><div class="tracker-dot" id="tdot-3">3</div><div class="tracker-label">Pathways</div></div>
+  </div>
+  <div class="school-body">
+    <div class="section-title">Complete all 3 to unlock your full profile</div>
+    <div class="feature-card" id="card-interests" onclick="startQuiz('interests')">
+      <div class="feature-icon fi-teal">✨</div>
+      <div class="feature-info"><div class="feature-title">Discover your interests</div><div class="feature-desc">What topics and experiences truly excite you?</div><span class="feature-tag tag-teal" id="tag-interests">Start · 3 mins</span></div>
+      <div class="feature-arrow" id="arrow-interests">›</div>
+    </div>
+    <div class="feature-card" id="card-skills" onclick="startQuiz('skills')">
+      <div class="feature-icon fi-rose">💪</div>
+      <div class="feature-info"><div class="feature-title">Recognise your human skills</div><div class="feature-desc">Empathy, creativity, leadership — your natural strengths.</div><span class="feature-tag tag-rose" id="tag-skills">Start · 3 mins</span></div>
+      <div class="feature-arrow" id="arrow-skills">›</div>
+    </div>
+    <div class="feature-card" id="card-pathways" onclick="startQuiz('pathways')">
+      <div class="feature-icon fi-amber">🗺️</div>
+      <div class="feature-info"><div class="feature-title">Explore future pathways</div><div class="feature-desc">What kind of future world excites you most?</div><span class="feature-tag tag-amber" id="tag-pathways">Start · 3 mins</span></div>
+      <div class="feature-arrow" id="arrow-pathways">›</div>
+    </div>
+    <div id="full-report-btn-wrap" style="display:none;margin-top:4px;">
+      <button class="btn-primary" style="background:var(--teal);" onclick="showFullReport()">See my complete InnerMap →</button>
+    </div>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div id="screen-quiz">
+  <nav class="nav">
+    <div class="nav-back" onclick="showScreen('student')">‹ Back</div>
+    <div style="font-size:13px;font-weight:600;" id="quiz-title-nav">Quiz</div>
+    <div style="width:50px;"></div>
+  </nav>
+  <div class="quiz-header">
+    <div class="quiz-progress-label"><span id="quiz-q-label">Question 1 of 8</span><span id="quiz-pct">12%</span></div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:12%"></div></div>
+  </div>
+  <div class="quiz-body">
+    <div class="quiz-category" id="quiz-category">Interests</div>
+    <div class="quiz-question" id="quiz-question">Loading...</div>
+    <div class="quiz-options" id="quiz-options"></div>
+  </div>
+</div>
+
+<!-- PROCESSING -->
+<div id="screen-processing">
+  <div class="processing-logo">InnerMap</div>
+  <div class="processing-orb"></div>
+  <div class="processing-steps">
+    <div class="processing-step" id="pstep-1"><div class="processing-step-dot"></div>Reading your answers</div>
+    <div class="processing-step" id="pstep-2"><div class="processing-step-dot"></div>Finding your patterns</div>
+    <div class="processing-step" id="pstep-3"><div class="processing-step-dot"></div>Building your profile</div>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div class="screen has-bottom-nav" id="screen-results">
+  <nav class="nav">
+    <div class="nav-back" onclick="showScreen('student')">‹ Back</div>
+    <div class="nav-logo"><span>IM</span> Your results</div>
+    <div style="width:50px;"></div>
+  </nav>
+  <div class="results-header">
+    <div class="results-badge" id="results-badge">✦ Quiz 1 of 3 complete</div>
+    <div class="results-name" id="results-name">Your profile</div>
+    <div class="results-sub">Based on your answers — no judgement, just insight</div>
+  </div>
+  <div class="results-body"><div id="results-dynamic"></div></div>
+</div>
+
+<!-- FULL REPORT -->
+<div class="screen has-bottom-nav" id="screen-full-report">
+  <nav class="nav">
+    <div class="nav-back" onclick="showScreen('student')">‹ Back</div>
+    <div class="nav-logo"><span>IM</span> My InnerMap</div>
+    <div style="width:50px;"></div>
+  </nav>
+  <div class="results-header">
+    <div class="results-badge">✦ All 3 quizzes complete</div>
+    <div class="results-name" id="full-report-title">Your complete profile</div>
+    <div class="results-sub">Your private self-discovery report</div>
+  </div>
+  <div style="padding:24px 20px;" id="full-report-body"></div>
+</div>
+
+<!-- PAYWALL -->
+<div class="screen has-bottom-nav" id="screen-paywall">
+  <nav class="nav">
+    <div class="nav-back" onclick="showScreen('full-report')">‹ Back</div>
+    <div class="nav-logo"><span>IM</span> InnerMap</div>
+    <div style="width:50px;"></div>
+  </nav>
+  <div class="paywall-header">
+    <div style="font-size:40px;margin-bottom:14px;">🔓</div>
+    <div class="paywall-title">Your free week<br>is complete!</div>
+    <div class="paywall-sub">You've seen what InnerMap can do.<br>Continue your growth journey.</div>
+  </div>
+  <div class="paywall-body">
+    <div class="paywall-price">
+      <div style="font-size:13px;color:var(--muted);margin-bottom:8px;">Continue for just</div>
+      <div class="paywall-amount">₹99</div>
+      <div class="paywall-period">per month · cancel anytime</div>
+      <div class="paywall-features">
+        <div class="paywall-feat"><div class="paywall-feat-dot">✓</div>AI-personalised weekly check-ins</div>
+        <div class="paywall-feat"><div class="paywall-feat-dot">✓</div>Full growth tracking and streaks</div>
+        <div class="paywall-feat"><div class="paywall-feat-dot">✓</div>Retake quizzes and see how you've grown</div>
+        <div class="paywall-feat"><div class="paywall-feat-dot">✓</div>Deeper pathway exploration</div>
+        <div class="paywall-feat"><div class="paywall-feat-dot">✓</div>Private journal — unlimited entries</div>
+        <div class="paywall-feat"><div class="paywall-feat-dot">✓</div>Progress certificate every 3 months</div>
+      </div>
+      <button class="pay-btn" onclick="openPayment()">Pay ₹99 with UPI / Card →</button>
+      <div class="promo-divider">or use a promo code</div>
+      <div class="promo-wrap">
+        <label class="promo-label">Have a free access code?</label>
+        <div class="promo-row">
+          <input class="promo-input" type="text" id="promo-input" placeholder="Enter code" maxlength="20" oninput="this.value=this.value.toUpperCase()">
+          <button class="promo-btn" onclick="applyPromoCode()">Apply</button>
+        </div>
+        <div class="promo-msg" id="promo-msg"></div>
+      </div>
+      <div class="pay-note">🔒 Secure payment via Razorpay · UPI, GPay, PhonePe, Cards accepted<br>Your payment goes directly to InnerMap. 100% safe.</div>
+    </div>
+    <div style="text-align:center;margin-top:8px;">
+      <div style="font-size:12px;color:var(--muted);cursor:pointer;" onclick="showScreen('home')">Maybe later — go back home</div>
+    </div>
+  </div>
+</div>
+
+<!-- PROGRESS -->
+<div class="screen has-bottom-nav" id="screen-progress">
+  <nav class="nav">
+    <div class="nav-back" onclick="showScreen('home')">‹ Back</div>
+    <div class="nav-logo"><span>IM</span> My Progress</div>
+    <div style="width:50px;"></div>
+  </nav>
+  <div class="progress-header">
+    <div class="progress-title" id="progress-greeting">Your growth journey</div>
+    <div class="progress-sub">Every small step counts 🌱</div>
+  </div>
+  <div style="padding:24px 20px;flex:1;" id="progress-body"></div>
+</div>
+
+<!-- WEEK 2 AI SESSION -->
+<div class="screen has-bottom-nav" id="screen-week2">
+  <nav class="nav">
+    <div class="nav-back" onclick="showScreen('home')">‹ Back</div>
+    <div class="nav-logo"><span>IM</span> Week 2</div>
+    <div style="width:50px;"></div>
+  </nav>
+  <div class="week2-header">
+    <div class="week2-title">Your personalised<br>check-in</div>
+    <div class="week2-sub">Questions written just for you<br>based on what you shared last week</div>
+    <div class="ai-badge">⚡ Powered by AI</div>
+  </div>
+  <div class="week2-body" id="week2-body">
+    <div class="week2-loading">
+      <div class="processing-orb" style="margin:0 auto;"></div>
+      <div class="week2-loading-text">Generating your personalised questions...</div>
+    </div>
+  </div>
+</div>
+
+<!-- JOURNAL -->
+<div class="screen has-bottom-nav" id="screen-journal">
+  <nav class="nav">
+    <div class="nav-back" onclick="showScreen('home')">‹ Back</div>
+    <div class="nav-logo"><span>IM</span> My Journal</div>
+    <div style="width:50px;"></div>
+  </nav>
+  <div class="journal-header">
+    <div class="journal-title">Your private space</div>
+    <div class="journal-sub">Only you can read this. Always. 🔒</div>
+  </div>
+  <div class="journal-body">
+    <div class="journal-compose">
+      <div style="font-size:13px;font-weight:600;margin-bottom:10px;">How are you feeling today?</div>
+      <div class="journal-mood" id="journal-mood-row">
+        <div class="mood-btn" onclick="selectMood(this,'😊')">😊</div>
+        <div class="mood-btn" onclick="selectMood(this,'😐')">😐</div>
+        <div class="mood-btn" onclick="selectMood(this,'😔')">😔</div>
+        <div class="mood-btn" onclick="selectMood(this,'😤')">😤</div>
+        <div class="mood-btn" onclick="selectMood(this,'🤔')">🤔</div>
+      </div>
+      <textarea class="journal-textarea" id="journal-text" placeholder="Write anything on your mind... nobody will ever see this."></textarea>
+      <button class="btn-primary" style="background:var(--rose);margin-top:12px;" onclick="saveJournalEntry()">Save this entry →</button>
+    </div>
+    <div class="section-title">Past entries</div>
+    <div id="journal-entries-list"><div style="font-size:13px;color:var(--muted);text-align:center;padding:20px;">No entries yet. Write your first one above.</div></div>
+  </div>
+</div>
+
+<!-- SCHOOL -->
+<div class="screen has-bottom-nav" id="screen-school">
+  <nav class="nav">
+    <div class="nav-back" onclick="showScreen('home')">‹ Back</div>
+    <div class="nav-logo"><span>IM</span> InnerMap</div>
+    <div style="width:50px;"></div>
+  </nav>
+  <div class="school-header">
+    <div class="school-title">School Readiness<br>Report</div>
+    <div class="school-sub">2 minutes · Free for schools</div>
+  </div>
+  <div class="school-body">
+    <div class="school-form-group"><label class="school-label">School name</label><input class="school-input" type="text" placeholder="e.g. Delhi Public School, Hyderabad" id="school-name-input"></div>
+    <div class="school-form-group"><label class="school-label">Number of students</label>
+      <div class="school-options">
+        <div class="school-option" onclick="selectSchoolOpt(this,'size')"><div class="school-option-dot"></div>Under 300 students</div>
+        <div class="school-option" onclick="selectSchoolOpt(this,'size')"><div class="school-option-dot"></div>300 – 800 students</div>
+        <div class="school-option" onclick="selectSchoolOpt(this,'size')"><div class="school-option-dot"></div>800 – 1500 students</div>
+        <div class="school-option" onclick="selectSchoolOpt(this,'size')"><div class="school-option-dot"></div>Over 1500 students</div>
+      </div>
+    </div>
+    <div class="school-form-group"><label class="school-label">Current guidance support</label>
+      <div class="school-options">
+        <div class="school-option" onclick="selectSchoolOpt(this,'guidance')"><div class="school-option-dot"></div>We have a dedicated counsellor</div>
+        <div class="school-option" onclick="selectSchoolOpt(this,'guidance')"><div class="school-option-dot"></div>Teachers handle guidance informally</div>
+        <div class="school-option" onclick="selectSchoolOpt(this,'guidance')"><div class="school-option-dot"></div>We rely on parents</div>
+        <div class="school-option" onclick="selectSchoolOpt(this,'guidance')"><div class="school-option-dot"></div>No structured guidance</div>
+      </div>
+    </div>
+    <div class="school-form-group"><label class="school-label">Biggest student challenge</label>
+      <div class="school-options">
+        <div class="school-option" onclick="selectSchoolOpt(this,'challenge')"><div class="school-option-dot"></div>Pressure to choose career too early</div>
+        <div class="school-option" onclick="selectSchoolOpt(this,'challenge')"><div class="school-option-dot"></div>Low confidence and self-awareness</div>
+        <div class="school-option" onclick="selectSchoolOpt(this,'challenge')"><div class="school-option-dot"></div>Parent expectations vs student interest</div>
+        <div class="school-option" onclick="selectSchoolOpt(this,'challenge')"><div class="school-option-dot"></div>No visibility into student wellbeing</div>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="generateReport()" style="background:var(--amber);margin-top:8px;">Generate my school report →</button>
+  </div>
+</div>
+
+<!-- SCHOOL REPORT -->
+<div class="screen has-bottom-nav" id="screen-report">
+  <nav class="nav">
+    <div class="nav-back" onclick="showScreen('school')">‹ Back</div>
+    <div style="font-size:13px;font-weight:600;">School report</div>
+    <div style="width:50px;"></div>
+  </nav>
+  <div class="report-header">
+    <div class="report-score-ring"><div class="report-score-inner"><div class="report-score-num">62</div><div class="report-score-label">/ 100</div></div></div>
+    <div class="report-school-name" id="report-school-name">Your School</div>
+    <div class="report-date">Readiness Report · InnerMap 2025</div>
+  </div>
+  <div class="report-body">
+    <div style="margin-bottom:20px;"><div class="section-title" style="margin-bottom:12px;">Where your school needs support</div>
+      <div class="report-gap"><div class="report-gap-top"><div class="gap-dot gap-red"></div><div class="report-gap-title">Early pressure on career decisions</div></div><div class="report-gap-desc">Students aged 13–15 are being pushed to make career choices before they have the self-awareness to do so.</div></div>
+      <div class="report-gap"><div class="report-gap-top"><div class="gap-dot gap-amber"></div><div class="report-gap-title">Limited structured guidance time</div></div><div class="report-gap-desc">Without dedicated guidance sessions, counsellors are reactive. Students only seek help in crisis, not for growth.</div></div>
+      <div class="report-gap"><div class="report-gap-top"><div class="gap-dot gap-green"></div><div class="report-gap-title">Good parent involvement</div></div><div class="report-gap-desc">Your school has strong parent communication. This can be channelled to reduce pressure rather than add to it.</div></div>
+    </div>
+    <div style="margin-bottom:20px;"><div class="section-title" style="margin-bottom:12px;">Your 30-day pilot plan</div>
+      <div class="pilot-step"><div class="pilot-week">Wk<span>1</span></div><div><div class="pilot-title">Launch student self-discovery</div><div class="pilot-desc">All Grade 8–10 students complete the InnerMap quiz. 20 minutes in a free period.</div></div></div>
+      <div class="pilot-step"><div class="pilot-week">Wk<span>2</span></div><div><div class="pilot-title">Counsellor reviews class insights</div><div class="pilot-desc">Class-level dashboard showing interest clusters. No individual student singled out.</div></div></div>
+      <div class="pilot-step"><div class="pilot-week">Wk<span>3</span></div><div><div class="pilot-title">Parent awareness session</div><div class="pilot-desc">30-minute session for parents on supporting without pressure. InnerMap provides templates.</div></div></div>
+      <div class="pilot-step"><div class="pilot-week">Wk<span>4</span></div><div><div class="pilot-title">Review and decide next steps</div><div class="pilot-desc">Principal reviews results. Decide whether to roll out to all grades.</div></div></div>
+    </div>
+    <button class="btn-primary" onclick="alert('Thank you! Our team will contact you within 24 hours on WhatsApp.')" style="background:var(--amber);">Request full partnership →</button>
+  </div>
+</div>
+
+<script>
+// ─── QUIZ DATA ────────────────────────────────────────────────────────────
+const quizzes = {
+  interests:{title:"Discover your interests",category:"Interests",questions:[
+    {q:"You're scrolling your phone. What kind of content makes you stop and actually watch?",opts:[{t:"Facts, mysteries, documentaries — stuff that makes me go 'whoa'",l:false},{t:"Just whatever comes up — I scroll without really stopping for anything",l:true},{t:"Art, music, fashion, films — anything creative and aesthetic",l:false},{t:"Someone sharing their real struggle or life story",l:false},{t:"Tech, gaming, gadgets, or 'how does this work' videos",l:false}]},
+    {q:"It's a Sunday with zero plans. What do you actually end up doing?",opts:[{t:"Drawing, writing, making something, or listening to music",l:false},{t:"Going down a YouTube rabbit hole learning something random",l:false},{t:"Just lying around switching between apps without doing much",l:true},{t:"Texting friends, watching relatable content, or helping someone",l:false},{t:"Playing games, building something, or fixing a problem",l:false}]},
+    {q:"Your friend group is planning something fun. Which idea would YOU suggest?",opts:[{t:"A quiz night or debate about something interesting",l:false},{t:"Just chilling somewhere — no plans, no pressure",l:true},{t:"Organising something for the community or a cause",l:false},{t:"Making a short film, doing art, or performing something",l:false},{t:"Building something, coding a game, or a hackathon",l:false}]},
+    {q:"Which type of creator do you find yourself watching most?",opts:[{t:"Aesthetic creators — art, fashion, travel, music",l:false},{t:"Educational creators — history, science, psychology",l:false},{t:"Tech, coding, gaming, or satisfying process videos",l:false},{t:"I don't really follow anyone — I just watch whatever appears",l:true},{t:"Real-talk creators — mental health, life advice, motivation",l:false}]},
+    {q:"Your friends come to you when they need...",opts:[{t:"Someone to talk to who actually listens",l:false},{t:"A fresh idea or creative solution",l:false},{t:"Someone practical who can actually fix things",l:false},{t:"An explanation or answer to something confusing",l:false},{t:"I'm not sure — they don't really come to me for anything specific",l:true}]},
+    {q:"Which school project would you actually enjoy doing?",opts:[{t:"I just want to finish it — none of them really excite me",l:true},{t:"A research presentation on a topic I'm genuinely curious about",l:false},{t:"Building a working model, app, or science experiment",l:false},{t:"A poster, video, or creative performance",l:false},{t:"A survey on student problems and how to fix them",l:false}]},
+    {q:"If you could spend one month learning anything for free, what would it be?",opts:[{t:"Photography, music, graphic design, or acting",l:false},{t:"Coding, robotics, engineering, or data science",l:false},{t:"Nothing comes to mind right now — I would figure it out later",l:true},{t:"Counselling, social work, teaching, or community work",l:false},{t:"A language, history, psychology, or philosophy",l:false}]},
+    {q:"Be honest — what do you daydream about when class is boring?",opts:[{t:"Making a real difference in someone's life",l:false},{t:"Creating something people will admire or remember",l:false},{t:"Building something cool that actually works",l:false},{t:"Food, going home, sleep — nothing deep really",l:true},{t:"Knowing everything about a topic that fascinates me",l:false}]}
+  ]},
+  skills:{title:"Recognise your human skills",category:"Human Skills",questions:[
+    {q:"Your close friend is upset about something. What do you naturally do?",opts:[{t:"Sit with them quietly and just listen without judging",l:false},{t:"I usually freeze up — I am not sure how to react",l:true},{t:"Try to make them laugh or distract them with something fun",l:false},{t:"Give them space but check in with a text later",l:false},{t:"Immediately think of ways to fix the problem for them",l:false}]},
+    {q:"It's a group project. Honestly, what role do you end up playing?",opts:[{t:"The organiser — making the plan and tracking deadlines",l:false},{t:"The ideas person — always suggesting something new",l:false},{t:"The leader — taking charge so things actually get done",l:false},{t:"I just go along with whatever the group decides",l:true},{t:"The peacemaker — making sure everyone gets along",l:false}]},
+    {q:"A teacher gives you an assignment with zero instructions. Your reaction?",opts:[{t:"Stressed — I need someone to just tell me what to do",l:true},{t:"Excited — finally I can do it my own way",l:false},{t:"Calm — I break it into steps and just start",l:false},{t:"Curious — I start looking at what others have done first",l:false},{t:"A bit anxious — I ask a friend what they think first",l:false}]},
+    {q:"You accidentally said something that hurt a friend. What do you do?",opts:[{t:"Apologise directly and figure out how to not repeat it",l:false},{t:"Immediately think of a way to make it right",l:false},{t:"I tend to avoid it and hope it blows over on its own",l:true},{t:"Feel really bad and think about it for days",l:false},{t:"Talk to another friend about what happened first",l:false}]},
+    {q:"In a group, which one is most YOU?",opts:[{t:"I notice when the plan has a flaw that will cause problems",l:false},{t:"I notice when someone is feeling left out or uncomfortable",l:false},{t:"I am usually in my own world — I don't notice much around me",l:true},{t:"I notice when the group is missing a better idea",l:false},{t:"I notice when someone needs help before they even ask",l:false}]},
+    {q:"Your class has a disagreement over something unfair. What do you do?",opts:[{t:"Come up with a different solution nobody thought of yet",l:false},{t:"I stay quiet — I would rather someone else handles it",l:true},{t:"Speak up loudly for whoever is being treated unfairly",l:false},{t:"Listen to both sides and help find a middle ground",l:false},{t:"Research the rules and present the facts calmly",l:false}]},
+    {q:"What do people in your life say about you most?",opts:[{t:"You are so understanding and easy to talk to",l:false},{t:"You always show up when people need you",l:false},{t:"Nobody has really said anything specific about me",l:true},{t:"You always have the most random but brilliant ideas",l:false},{t:"You are the most sorted and reliable person I know",l:false}]},
+    {q:"When something goes wrong in a team, what is your first honest reaction?",opts:[{t:"I check on how the team is feeling first",l:false},{t:"I analyse exactly what went wrong and how to fix it",l:false},{t:"I feel it emotionally and need a moment to process",l:false},{t:"I immediately think of three different ways to fix it",l:false},{t:"I want to step back and not deal with it right away",l:true}]}
+  ]},
+  pathways:{title:"Explore future pathways",category:"Future Pathways",questions:[
+    {q:"Forget what your parents want. What kind of work secretly excites YOU?",opts:[{t:"Work where I create things people feel and remember",l:false},{t:"Work where I build things that solve actual problems",l:false},{t:"Nothing really excites me right now — I genuinely don't know",l:true},{t:"Work where I keep learning and sharing knowledge forever",l:false},{t:"Work where I can see my impact on real people's lives",l:false}]},
+    {q:"Which of these would make you feel proud at age 30?",opts:[{t:"I helped hundreds of people through a really hard time",l:false},{t:"I just want a stable comfortable life — that is enough for me",l:true},{t:"I wrote, taught, or researched something that changed minds",l:false},{t:"I built a product or system thousands of people use daily",l:false},{t:"I created something beautiful that people still talk about",l:false}]},
+    {q:"Your parents give you a free gap year. Where do you actually go?",opts:[{t:"A rural area or NGO doing real community work",l:false},{t:"I would probably stay home and rest — I need the break",l:true},{t:"A university city to read, attend talks, and explore ideas",l:false},{t:"A startup, tech company, or innovation lab",l:false},{t:"A city known for art, film, music, or design",l:false}]},
+    {q:"Which news headline makes you say I want to be part of that?",opts:[{t:"Teen builds app that solves a problem nobody had solved before",l:false},{t:"22-year-old's short film wins international award",l:false},{t:"None of these really grab me if I am being honest",l:true},{t:"Teacher uses storytelling to make kids love history",l:false},{t:"Student starts movement that helps 10,000 kids in slums",l:false}]},
+    {q:"Which problem actually keeps you up at night sometimes?",opts:[{t:"Why do people suffer alone when others could help?",l:false},{t:"Mostly my own stuff — exams, marks, what others think of me",l:true},{t:"Why do so many people not get quality education?",l:false},{t:"Why haven't we solved things technology should fix by now?",l:false},{t:"Why is the world so unequal when it doesn't have to be?",l:false}]},
+    {q:"Which subject combination in college excites you most?",opts:[{t:"Computer Science + Engineering + Data Science or Business",l:false},{t:"Literature + History + Psychology or Journalism",l:false},{t:"Fine Arts + Design + Media or Film Studies",l:false},{t:"I will just go with whatever my marks or parents decide",l:true},{t:"Sociology + Public Health + Education or Social Work",l:false}]},
+    {q:"You have 10 years and unlimited support. What do you build?",opts:[{t:"A tech startup, a hospital, or a sustainable energy company",l:false},{t:"An NGO, a mental health helpline, or a community centre",l:false},{t:"An art studio, a fashion label, or a film production house",l:false},{t:"I honestly cannot picture 10 years ahead — it feels too far",l:true},{t:"A school, a media company, or a research institute",l:false}]},
+    {q:"Which of these people do you secretly admire most?",opts:[{t:"I don't really have a role model that comes to mind",l:true},{t:"APJ Abdul Kalam — teacher, thinker, inspirer of millions",l:false},{t:"AR Rahman — creator who moved the whole world with music",l:false},{t:"Sundar Pichai — built something a billion people use daily",l:false},{t:"Kailash Satyarthi — fought his whole life so children could be free",l:false}]}
+  ]}
+};
+
+const profiles = [
+  {name:"🧠 The Thinker",  emoji:"🧠",label:"Thinker", desc:"You love learning, asking questions, and going deep on topics that fascinate you. Natural hunger for knowledge.",path:"Research, journalism, teaching, psychology, history"},
+  {name:"🎨 The Creator",  emoji:"🎨",label:"Creator",  desc:"You see beauty where others don't. You express yourself through art, music, writing, design, or performance.",path:"Design, arts, film, fashion, architecture, music"},
+  {name:"🤝 The Connector",emoji:"🤝",label:"Connector",desc:"You genuinely care about people. You notice emotions, build trust easily, and want to make lives better.",path:"Counselling, social work, medicine, education, NGOs"},
+  {name:"⚙️ The Builder",  emoji:"⚙️",label:"Builder",  desc:"You think in solutions. When something is broken you want to fix it. When something doesn't exist you want to build it.",path:"Engineering, coding, entrepreneurship, science, data"}
+];
+
+const milestoneList = [
+  {id:'first_quiz',  icon:'🌱', name:'First step',    desc:'Completed first quiz',   req:'Complete 1 quiz'},
+  {id:'all_quizzes', icon:'🗺️', name:'Self-mapped',   desc:'All 3 quizzes done',     req:'Complete all 3'},
+  {id:'week2',       icon:'🤖', name:'AI session',    desc:'Week 2 check-in done',   req:'Complete week 2'},
+  {id:'streak3',     icon:'🔥', name:'3-day streak',  desc:'3 days in a row',        req:'3-day streak'},
+  {id:'journal3',    icon:'📓', name:'Journal habit', desc:'3 journal entries',      req:'Write 3 entries'},
+  {id:'paid',        icon:'⭐', name:'Committed',     desc:'Joined premium',         req:'Upgrade to premium'}
+];
+
+// ─── STATE ────────────────────────────────────────────────────────────────
+let studentName = '';
+let currentQuiz = null;
+let currentQuizType = null;
+let currentQ = 0;
+let answers = [];
+let selectedOpt = null;
+let completedQuizzes = {};
+let isPaid = false;
+let streak = 0;
+let lastActiveDate = null;
+let journalEntries = [];
+let unlockedMilestones = [];
+let selectedMood = '';
+let week2Questions = [];
+let week2CurrentQ = 0;
+let week2Answers = [];
+const RAZORPAY_KEY = 'rzp_test_YOUR_KEY_HERE';
+const quizOrder = ['interests','skills','pathways'];
+
+// ─── PERSIST / LOAD ───────────────────────────────────────────────────────
+function saveState(){
+  try {
+    localStorage.setItem('im_state', JSON.stringify({
+      studentName, completedQuizzes, isPaid, streak,
+      lastActiveDate, journalEntries, unlockedMilestones, week2Questions
+    }));
+  } catch(e){}
+}
+
+function loadState(){
+  try {
+    const raw = localStorage.getItem('im_state');
+    if(!raw) return;
+    const s = JSON.parse(raw);
+    studentName      = s.studentName      || '';
+    completedQuizzes = s.completedQuizzes || {};
+    isPaid           = s.isPaid           || false;
+    streak           = s.streak           || 0;
+    lastActiveDate   = s.lastActiveDate   || null;
+    journalEntries   = s.journalEntries   || [];
+    unlockedMilestones = s.unlockedMilestones || [];
+    week2Questions   = s.week2Questions   || [];
+  } catch(e){}
+}
+
+// ─── STREAK ───────────────────────────────────────────────────────────────
+function updateStreak(){
+  const today = new Date().toDateString();
+  if(lastActiveDate === today) return;
+  const yesterday = new Date(Date.now()-86400000).toDateString();
+  streak = (lastActiveDate === yesterday) ? streak + 1 : 1;
+  lastActiveDate = today;
+  checkMilestones();
+  saveState();
+}
+
+// ─── MILESTONES ───────────────────────────────────────────────────────────
+function checkMilestones(){
+  const doneCount = Object.keys(completedQuizzes).length;
+  if(doneCount >= 1 && !unlockedMilestones.includes('first_quiz')) unlockedMilestones.push('first_quiz');
+  if(doneCount >= 3 && !unlockedMilestones.includes('all_quizzes')) unlockedMilestones.push('all_quizzes');
+  if(week2Questions.length > 0 && week2CurrentQ >= week2Questions.length && !unlockedMilestones.includes('week2')) unlockedMilestones.push('week2');
+  if(streak >= 3 && !unlockedMilestones.includes('streak3')) unlockedMilestones.push('streak3');
+  if(journalEntries.length >= 3 && !unlockedMilestones.includes('journal3')) unlockedMilestones.push('journal3');
+  if(isPaid && !unlockedMilestones.includes('paid')) unlockedMilestones.push('paid');
+  saveState();
+}
+
+// ─── APP START ────────────────────────────────────────────────────────────
+function startApp(){
+  const nameInput = document.getElementById('student-name-input').value.trim();
+  studentName = nameInput || 'Explorer';
+  document.getElementById('welcome').style.display = 'none';
+  document.getElementById('bottomNav').style.display = 'flex';
+  updateStreak();
+  showScreen('home');
+  saveState();
+}
+
+// ─── SHOW SCREEN ─────────────────────────────────────────────────────────
+function showScreen(name){
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});
+  document.getElementById('screen-quiz') && document.getElementById('screen-quiz').classList.remove('active');
+  document.getElementById('screen-processing') && document.getElementById('screen-processing').classList.remove('active');
+  document.querySelectorAll('.bnav-item').forEach(function(b){b.classList.remove('active');});
+  const el = document.getElementById('screen-'+name);
+  if(el) el.classList.add('active');
+  const bnav = document.getElementById('bnav-'+name);
+  if(bnav) bnav.classList.add('active');
+  if(name==='home')        buildHome();
+  if(name==='student')     updateStudentScreen();
+  if(name==='full-report') buildFullReport();
+  if(name==='progress')    buildProgress();
+  if(name==='journal')     buildJournal();
+  if(name==='week2')       initWeek2();
+  window.scrollTo(0,0);
+}
+
+// ─── HOME ─────────────────────────────────────────────────────────────────
+function buildHome(){
+  document.getElementById('home-greeting').textContent = 'Hi, '+studentName+' 👋';
+  const doneCount = Object.keys(completedQuizzes).length;
+  const w2tag = document.getElementById('home-week2-status');
+  if(doneCount >= 3){
+    document.getElementById('home-quiz-status').textContent = 'All 3 done ✓';
+    if(isPaid){
+      w2tag.textContent = week2Questions.length > 0 ? 'Continue ↗' : 'Start Week 2 ↗';
+    } else {
+      w2tag.textContent = 'Upgrade to unlock';
+      w2tag.style.background = '#EDE9FE';
+      w2tag.style.color = '#6D28D9';
+    }
+  }
+}
+
+// ─── STUDENT SCREEN ───────────────────────────────────────────────────────
+function updateStudentScreen(){
+  const done = Object.keys(completedQuizzes);
+  quizOrder.forEach(function(type,i){
+    const num = i+1;
+    const dot = document.getElementById('tdot-'+num);
+    const tag = document.getElementById('tag-'+type);
+    if(completedQuizzes[type]){
+      dot.className='tracker-dot done'; dot.textContent='✓';
+      tag.textContent='Done ✓'; tag.style.background='#CCFBF1'; tag.style.color='#0F766E';
+    } else if(done.length===i){
+      dot.className='tracker-dot active';
+    }
+    if(i<2){ const line=document.getElementById('tline-'+num); if(completedQuizzes[type]) line.classList.add('done'); }
+  });
+  const allDone = quizOrder.every(function(t){return completedQuizzes[t];});
+  document.getElementById('full-report-btn-wrap').style.display = allDone ? 'block' : 'none';
+}
+
+// ─── QUIZ FLOW ────────────────────────────────────────────────────────────
+function startQuiz(type){
+  currentQuiz = quizzes[type];
+  currentQuizType = type;
+  currentQ = 0; answers = []; selectedOpt = null;
+  document.getElementById('quiz-title-nav').textContent = currentQuiz.title;
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});
+  document.getElementById('screen-quiz').classList.add('active');
+  renderQuestion();
+  window.scrollTo(0,0);
+}
+
+function renderQuestion(){
+  const q = currentQuiz.questions[currentQ];
+  const total = currentQuiz.questions.length;
+  const pct = Math.round(((currentQ+1)/total)*100);
+  document.getElementById('quiz-q-label').textContent='Question '+(currentQ+1)+' of '+total;
+  document.getElementById('quiz-pct').textContent=pct+'%';
+  document.getElementById('progress-fill').style.width=pct+'%';
+  document.getElementById('quiz-category').textContent=currentQuiz.category;
+  document.getElementById('quiz-question').textContent=q.q;
+  const optsEl=document.getElementById('quiz-options');
+  optsEl.innerHTML='';
+  const qBody=document.querySelector('.quiz-body');
+  qBody.classList.remove('quiz-slide'); void qBody.offsetWidth; qBody.classList.add('quiz-slide');
+  q.opts.forEach(function(opt,i){
+    const div=document.createElement('div');
+    div.className='quiz-option';
+    div.innerHTML='<div class="quiz-option-dot"></div>'+opt.t;
+    div.onclick=function(){selectOption(div,i);};
+    optsEl.appendChild(div);
+  });
+  selectedOpt=null;
+}
+
+function selectOption(el,idx){
+  document.querySelectorAll('.quiz-option').forEach(function(o){o.classList.remove('selected');});
+  el.classList.add('selected'); selectedOpt=idx;
+  setTimeout(nextQuestion,600);
+}
+
+function nextQuestion(){
+  if(selectedOpt===null) return;
+  answers.push(selectedOpt); selectedOpt=null;
+  if(currentQ<currentQuiz.questions.length-1){
+    currentQ++; renderQuestion();
+    document.querySelector('.quiz-body').scrollTop=0;
+  } else {
+    completedQuizzes[currentQuizType]=answers.slice();
+    checkMilestones(); saveState();
+    showProcessing();
+  }
+}
+
+// ─── PROCESSING ───────────────────────────────────────────────────────────
+function showProcessing(){
+  document.getElementById('screen-quiz').classList.remove('active');
+  document.getElementById('screen-processing').classList.add('active');
+  ['pstep-1','pstep-2','pstep-3'].forEach(function(id){document.getElementById(id).classList.remove('lit');});
+  setTimeout(function(){document.getElementById('pstep-1').classList.add('lit');},400);
+  setTimeout(function(){document.getElementById('pstep-2').classList.add('lit');},900);
+  setTimeout(function(){document.getElementById('pstep-3').classList.add('lit');},1400);
+  setTimeout(function(){
+    document.getElementById('screen-processing').classList.remove('active');
+    showResults();
+  },2200);
+}
+
+// ─── RESULTS ──────────────────────────────────────────────────────────────
+function showResults(){
+  const doneCount=Object.keys(completedQuizzes).length;
+  document.getElementById('results-badge').textContent='✦ Quiz '+doneCount+' of 3 complete';
+  document.getElementById('results-name').textContent=currentQuiz.title;
+  buildResults();
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});
+  document.getElementById('screen-results').classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function getProfile(type,quizAnswers){
+  const q=quizzes[type]; let lostCount=0; let scores=[0,0,0,0];
+  quizAnswers.forEach(function(ansIdx,qIdx){
+    const opt=q.questions[qIdx]&&q.questions[qIdx].opts[ansIdx];
+    if(!opt) return;
+    if(opt.l){lostCount++;return;}
+    const nonLost=q.questions[qIdx].opts.filter(function(o){return !o.l;});
+    const ni=nonLost.findIndex(function(o){return o.t===opt.t;});
+    if(ni>=0&&ni<4) scores[ni]++;
+  });
+  const isLost=lostCount>=Math.ceil(quizAnswers.length*0.5);
+  const sorted=scores.map(function(s,i){return{s:s,i:i};}).sort(function(a,b){return b.s-a.s;});
+  return{isLost:isLost,topIdx:sorted[0].i,secondIdx:sorted[1].i,scores:scores,lostCount:lostCount};
+}
+
+function buildResults(){
+  const rb=document.getElementById('results-dynamic');
+  if(!rb) return;
+  const result=getProfile(currentQuizType,completedQuizzes[currentQuizType]);
+  const doneCount=Object.keys(completedQuizzes).length;
+  let html='';
+  if(result.isLost){
+    html+='<div style="background:#FFF7ED;border:1px solid #FED7AA;border-radius:18px;padding:24px;margin-bottom:16px;text-align:center;">'
+      +'<div style="font-size:36px;margin-bottom:12px;">🌱</div>'
+      +'<div style="font-family:\'DM Serif Display\',serif;font-size:22px;color:#92400E;margin-bottom:10px;line-height:1.3;">You haven\'t found your spark yet.<br>And that\'s completely okay.</div>'
+      +'<div style="font-size:13px;color:#B45309;line-height:1.7;">Most students your age feel exactly the same. Not knowing is not failure — it\'s the beginning.</div>'
+      +'</div>'
+      +'<div style="background:white;border:1px solid var(--border);border-radius:18px;padding:20px;margin-bottom:12px;">'
+      +'<div style="font-size:14px;font-weight:600;margin-bottom:10px;">💬 What this means</div>'
+      +'<div style="font-size:13px;color:var(--muted);line-height:1.8;">✦ You\'re not lazy — you\'re <strong style="color:var(--ink)">unexplored</strong><br>✦ You\'re not confused — you\'re <strong style="color:var(--ink)">unrushed</strong><br>✦ You\'re not behind — you\'re <strong style="color:var(--ink)">honest</strong></div>'
+      +'</div>';
+  } else {
+    const top=profiles[result.topIdx]; const second=profiles[result.secondIdx];
+    const total=Math.max(completedQuizzes[currentQuizType].length,1);
+    const topPct=Math.min(Math.round((result.scores[result.topIdx]/total)*100)+50,95);
+    const secPct=Math.min(Math.round((result.scores[result.secondIdx]/total)*100)+32,78);
+    html+='<div class="profile-card"><div class="profile-label" style="color:var(--teal);">Your strongest profile</div>'
+      +'<div class="profile-name">'+top.name+'</div><div class="profile-desc">'+top.desc+'</div>'
+      +'<div class="profile-bar-wrap"><div class="profile-bar" style="width:'+topPct+'%;background:var(--teal);"></div></div>'
+      +'<div class="profile-pct" style="color:var(--teal);">'+topPct+'% match</div></div>'
+      +'<div class="profile-card"><div class="profile-label" style="color:var(--muted);">Also strong in you</div>'
+      +'<div class="profile-name">'+second.name+'</div><div class="profile-desc">'+second.desc+'</div>'
+      +'<div class="profile-bar-wrap"><div class="profile-bar" style="width:'+secPct+'%;background:var(--amber);"></div></div>'
+      +'<div class="profile-pct" style="color:var(--amber);">'+secPct+'% match</div></div>';
+  }
+  // Nudge
+  const nudgeMap={interests:'skills',skills:'pathways'};
+  const nextType=nudgeMap[currentQuizType];
+  if(nextType&&!completedQuizzes[nextType]){
+    html+='<div class="nudge-card"><div class="nudge-emoji">✨</div>'
+      +'<div class="nudge-title">Keep going — Quiz '+(doneCount+1)+' of 3</div>'
+      +'<div class="nudge-sub">You\'re building your InnerMap. Each quiz adds a new layer of understanding about yourself.</div>'
+      +'<button class="nudge-btn" onclick="startQuiz(\''+nextType+'\')">Continue to next quiz →</button>'
+      +'<div class="nudge-skip" onclick="showScreen(\'student\')">I\'ll come back later</div></div>';
+  } else if(doneCount===3){
+    html+='<div class="nudge-card"><div class="nudge-emoji">🎉</div>'
+      +'<div class="nudge-title">Your InnerMap is complete!</div>'
+      +'<div class="nudge-sub">All 3 quizzes done. Your full self-discovery profile is ready.</div>'
+      +'<button class="nudge-btn" onclick="showFullReport()">See my complete InnerMap →</button></div>';
+  }
+  rb.innerHTML=html;
+}
+
+// ─── FULL REPORT ──────────────────────────────────────────────────────────
+function showFullReport(){
+  const doneCount=Object.keys(completedQuizzes).length;
+  if(doneCount<3){showScreen('student');return;}
+  showScreen('full-report');
+}
+
+function buildFullReport(){
+  const body=document.getElementById('full-report-body');
+  const title=document.getElementById('full-report-title');
+  if(!body) return;
+  let totalScores=[0,0,0,0]; let totalLost=0; let totalAnswers=0;
+  quizOrder.forEach(function(type){
+    if(!completedQuizzes[type]) return;
+    const r=getProfile(type,completedQuizzes[type]);
+    r.scores.forEach(function(s,i){totalScores[i]+=s;});
+    totalLost+=r.lostCount; totalAnswers+=completedQuizzes[type].length;
+  });
+  const sorted=totalScores.map(function(s,i){return{s:s,i:i};}).sort(function(a,b){return b.s-a.s;});
+  const isLost=totalLost>=Math.ceil(totalAnswers*0.5);
+  const top=profiles[sorted[0].i]; const second=profiles[sorted[1].i];
+  title.textContent=isLost?studentName+'\'s journey begins':studentName+' is '+top.label;
+  const topPct=Math.min(Math.round((totalScores[sorted[0].i]/Math.max(totalAnswers,1))*100)+50,95);
+  const secPct=Math.min(Math.round((totalScores[sorted[1].i]/Math.max(totalAnswers,1))*100)+32,78);
+  let html='';
+  if(!isLost){
+    html+='<div class="profile-card" style="margin-bottom:12px;">'
+      +'<div class="profile-label" style="color:var(--teal);">Primary profile — '+topPct+'% match</div>'
+      +'<div class="profile-name">'+top.name+'</div><div class="profile-desc">'+top.desc+'</div>'
+      +'<div class="profile-bar-wrap"><div class="profile-bar" style="width:'+topPct+'%;background:var(--teal);"></div></div></div>'
+      +'<div class="profile-card" style="margin-bottom:16px;">'
+      +'<div class="profile-label" style="color:var(--muted);">Secondary strength — '+secPct+'% match</div>'
+      +'<div class="profile-name">'+second.name+'</div><div class="profile-desc">'+second.desc+'</div>'
+      +'<div class="profile-bar-wrap"><div class="profile-bar" style="width:'+secPct+'%;background:var(--amber);"></div></div></div>'
+      +'<div style="background:var(--sand);border:1px solid var(--border);border-radius:18px;padding:18px;margin-bottom:16px;">'
+      +'<div style="font-size:14px;font-weight:600;margin-bottom:10px;">🗺️ Paths worth exploring</div>'
+      +'<div style="font-size:13px;color:var(--muted);line-height:1.7;"><strong style="color:var(--ink);">Based on '+top.label+':</strong> '+top.path+'<br><br>'
+      +'<strong style="color:var(--ink);">Also consider:</strong> '+second.path+'</div></div>';
+  } else {
+    html+='<div style="background:#FFF7ED;border:1px solid #FED7AA;border-radius:18px;padding:24px;margin-bottom:16px;text-align:center;">'
+      +'<div style="font-size:40px;margin-bottom:14px;">🌱</div>'
+      +'<div style="font-family:\'DM Serif Display\',serif;font-size:22px;color:#92400E;line-height:1.3;margin-bottom:10px;">Your spark is waiting to be found.</div>'
+      +'<div style="font-size:13px;color:#B45309;line-height:1.7;">That is perfectly okay. InnerMap will guide you week by week until you find it.</div></div>';
+  }
+  // Week 2 nudge or paywall
+  if(!isPaid){
+    html+='<div class="nudge-card" style="margin-bottom:16px;">'
+      +'<div class="nudge-emoji">🚀</div>'
+      +'<div class="nudge-title">Your free week is complete</div>'
+      +'<div class="nudge-sub">Continue your growth journey with AI-personalised weekly check-ins, streak tracking, and deeper guidance for just ₹99/month.</div>'
+      +'<button class="nudge-btn" onclick="showScreen(\'paywall\')">Continue for ₹99/month →</button>'
+      +'<div class="nudge-skip" onclick="showScreen(\'home\')">Maybe later</div></div>';
+  } else {
+    html+='<div class="nudge-card" style="margin-bottom:16px;">'
+      +'<div class="nudge-emoji">🤖</div>'
+      +'<div class="nudge-title">Ready for your Week 2 check-in?</div>'
+      +'<div class="nudge-sub">AI has generated personalised questions based on your Week 1 answers. This is where real growth begins.</div>'
+      +'<button class="nudge-btn" onclick="showScreen(\'week2\')">Start Week 2 →</button></div>';
+  }
+  html+='<div style="background:var(--teal-light);border-radius:16px;padding:16px;text-align:center;margin-bottom:24px;">'
+    +'<div style="font-size:13px;color:var(--teal);font-weight:500;line-height:1.6;">These are possibilities, not prescriptions.<br>You have time. Explore freely. 🌿</div></div>';
+  body.innerHTML=html;
+}
+
+// ─── PAYWALL + RAZORPAY ───────────────────────────────────────────────────
+
+  // PROMO CODES
+  const PROMO_CODES = {
+    'INNERMAP2025': 'Full access unlocked'
+  };
+
+  function applyPromoCode(){
+    var input = document.getElementById('promo-input');
+    var msg = document.getElementById('promo-msg');
+    var code = input.value.trim().toUpperCase();
+    if(!code){ msg.className='promo-msg error'; msg.textContent='Please enter a promo code.'; return; }
+    if(PROMO_CODES[code]){
+      isPaid=true;
+      if(!unlockedMilestones.includes('paid')) unlockedMilestones.push('paid');
+      checkMilestones(); saveState();
+      input.className='promo-input success';
+      msg.className='promo-msg success';
+      msg.textContent='Code accepted! '+PROMO_CODES[code]+' unlocked. Welcome to InnerMap Premium!';
+      setTimeout(function(){ showScreen('full-report'); },2000);
+    } else {
+      input.className='promo-input error';
+      msg.className='promo-msg error';
+      msg.textContent='Invalid code. Please check and try again.';
+      setTimeout(function(){ input.className='promo-input'; msg.className='promo-msg'; input.value=''; },2500);
+    }
+  }
+
+function openPayment(){
+  window.open('https://rzp.io/rzp/do6UXuB', '_blank');
+  // After payment student returns and enters promo or we confirm manually
+  // Show confirmation prompt after redirect
+  setTimeout(function(){
+    var confirmed = confirm('Did you complete the payment?\n\nIf yes — click OK to unlock premium access.\nIf no — click Cancel to go back.');
+    if(confirmed){
+      confirmPayment({});
+    }
+  }, 3000);
+}
+
+function initRazorpay(){
+  openPayment();
+}
+
+function confirmPayment(response){
+  isPaid=true;
+  checkMilestones(); saveState();
+  alert('Payment successful! Welcome to InnerMap Premium, '+studentName+' 🎉\n\nYour AI weekly check-in is now unlocked.');
+  showScreen('full-report');
+}
+
+// ─── WEEK 2 — AI POWERED ─────────────────────────────────────────────────
+async function initWeek2(){
+  if(!isPaid){showScreen('paywall');return;}
+  if(Object.keys(completedQuizzes).length<3){
+    alert('Complete all 3 quizzes first!');showScreen('student');return;
+  }
+  const body=document.getElementById('week2-body');
+  if(week2Questions.length>0 && week2CurrentQ<week2Questions.length){
+    renderWeek2Question(); return;
+  }
+  // Show loading
+  body.innerHTML='<div class="week2-loading"><div class="processing-orb" style="margin:0 auto;"></div><div class="week2-loading-text">Generating your personalised questions...<br><span style="font-size:11px;color:var(--muted);">This takes about 10 seconds</span></div></div>';
+  try {
+    // Build context from week 1 answers
+    let studentContext='Student name: '+studentName+'\n\n';
+    quizOrder.forEach(function(type){
+      if(!completedQuizzes[type]) return;
+      const q=quizzes[type];
+      studentContext+='=== '+type.toUpperCase()+' QUIZ ===\n';
+      completedQuizzes[type].forEach(function(ansIdx,qIdx){
+        const opt=q.questions[qIdx]&&q.questions[qIdx].opts[ansIdx];
+        if(opt) studentContext+='Q: '+q.questions[qIdx].q+'\nA: '+opt.t+'\n\n';
+      });
+    });
+    const prompt='You are InnerMap, a private self-discovery companion for Indian students aged 13-18.\n\nA student named '+studentName+' completed their Week 1 self-discovery quizzes. Here are their answers:\n\n'+context+'\n\nBased on these specific answers, generate exactly 5 personalised follow-up questions for their Week 2 check-in.\n\nRules:\n- Each question must reference something specific from their Week 1 answers\n- Questions should be warm, conversational, non-judgmental\n- No pressure, no right or wrong answers\n- Help them go deeper into what they discovered about themselves\n- Questions should be open-ended (not multiple choice)\n- Keep each question under 20 words\n- Speak directly to them like a caring friend\n\nReturn ONLY a JSON array of 5 strings. No other text. Example format:\n["Question 1?","Question 2?","Question 3?","Question 4?","Question 5?"]';
+
+    const response=await fetch('/.netlify/functions/generate-questions',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        studentName: studentName,
+        context: studentContext
+      })
+    });
+    const data=await response.json();
+    if(data.error) throw new Error(data.error);
+    week2Questions=data.questions;
+    week2CurrentQ=0; week2Answers=[];
+    saveState();
+    renderWeek2Question();
+  } catch(e){
+    body.innerHTML='<div style="padding:20px;text-align:center;">'
+      +'<div style="font-size:32px;margin-bottom:12px;">⚡</div>'
+      +'<div style="font-size:14px;color:var(--muted);line-height:1.6;">Could not generate questions right now.<br>Please try again in a moment.</div>'
+      +'<button class="btn-primary" style="margin-top:16px;" onclick="initWeek2()">Try again</button></div>';
+  }
+}
+
+function renderWeek2Question(){
+  if(week2CurrentQ>=week2Questions.length){
+    // All week 2 done
+    checkMilestones(); saveState();
+    document.getElementById('week2-body').innerHTML='<div style="padding:24px;text-align:center;">'
+      +'<div style="font-size:48px;margin-bottom:16px;">🌟</div>'
+      +'<div style="font-family:\'DM Serif Display\',serif;font-size:24px;margin-bottom:12px;">Week 2 complete!</div>'
+      +'<div style="font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:24px;">You reflected on 5 personalised questions this week. That takes real courage and self-awareness.</div>'
+      +'<button class="btn-primary" style="background:var(--teal);" onclick="showScreen(\'progress\')">See my progress →</button></div>';
+    return;
+  }
+  const q=week2Questions[week2CurrentQ];
+  const pct=Math.round(((week2CurrentQ+1)/week2Questions.length)*100);
+  document.getElementById('week2-body').innerHTML='<div style="margin-bottom:12px;display:flex;justify-content:space-between;font-size:12px;color:var(--muted);">'
+    +'<span>Question '+(week2CurrentQ+1)+' of '+week2Questions.length+'</span><span>'+pct+'%</span></div>'
+    +'<div style="height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-bottom:24px;">'
+    +'<div style="height:100%;width:'+pct+'%;background:var(--teal);border-radius:2px;"></div></div>'
+    +'<div class="week2-question">'+q+'</div>'
+    +'<textarea class="week2-input" id="week2-ans" placeholder="Write whatever comes to mind... there\'s no wrong answer." rows="4"></textarea>'
+    +'<div class="week2-hint">Take your time. Be honest. This is only for you.</div>'
+    +'<button class="btn-primary" style="margin-top:20px;background:var(--teal);" onclick="submitWeek2Answer()">Next →</button>';
+}
+
+function submitWeek2Answer(){
+  const ans=document.getElementById('week2-ans')&&document.getElementById('week2-ans').value.trim();
+  week2Answers.push({q:week2Questions[week2CurrentQ],a:ans||'(skipped)'});
+  week2CurrentQ++;
+  renderWeek2Question();
+}
+
+// ─── PROGRESS ────────────────────────────────────────────────────────────
+function buildProgress(){
+  const body=document.getElementById('progress-body');
+  const greeting=document.getElementById('progress-greeting');
+  if(!body) return;
+  greeting.textContent=studentName+'\'s growth journey';
+  const doneCount=Object.keys(completedQuizzes).length;
+  let html='<div class="streak-row">'
+    +'<div class="streak-box"><div class="streak-num">'+streak+'</div><div class="streak-label">Day streak 🔥</div></div>'
+    +'<div class="streak-box"><div class="streak-num">'+doneCount+'/3</div><div class="streak-label">Quizzes done</div></div>'
+    +'<div class="streak-box"><div class="streak-num">'+journalEntries.length+'</div><div class="streak-label">Journal entries</div></div>'
+    +'</div>'
+    +'<div class="section-title" style="margin-bottom:12px;">Milestones</div>'
+    +'<div class="milestone-grid">';
+  milestoneList.forEach(function(m){
+    const unlocked=unlockedMilestones.includes(m.id);
+    html+='<div class="milestone '+(unlocked?'unlocked':'locked')+'">'
+      +'<div class="milestone-icon">'+m.icon+'</div>'
+      +'<div class="milestone-name">'+m.name+'</div>'
+      +'<div class="milestone-desc">'+(unlocked?m.desc:m.req)+'</div>'
+      +'</div>';
+  });
+  html+='</div>';
+  // Weekly action
+  html+='<div class="section-title" style="margin:16px 0 12px;">This week\'s action</div>';
+  if(doneCount<3){
+    html+='<div class="feature-card" onclick="showScreen(\'student\')" style="margin-bottom:0;">'
+      +'<div class="feature-icon fi-teal">✨</div>'
+      +'<div class="feature-info"><div class="feature-title">Complete your discovery quizzes</div><div class="feature-desc">'+doneCount+' of 3 done. Finish all 3 to unlock your full InnerMap profile.</div></div>'
+      +'<div class="feature-arrow">›</div></div>';
+  } else if(!isPaid){
+    html+='<div class="feature-card" onclick="showScreen(\'paywall\')" style="margin-bottom:0;">'
+      +'<div class="feature-icon fi-purple">🔓</div>'
+      +'<div class="feature-info"><div class="feature-title">Unlock your full journey</div><div class="feature-desc">Upgrade for ₹99/month to get AI weekly check-ins and deeper guidance.</div><span class="feature-tag tag-purple">₹99/month</span></div>'
+      +'<div class="feature-arrow">›</div></div>';
+  } else {
+    html+='<div class="feature-card" onclick="showScreen(\'week2\')" style="margin-bottom:0;">'
+      +'<div class="feature-icon fi-purple">🤖</div>'
+      +'<div class="feature-info"><div class="feature-title">Start your AI check-in</div><div class="feature-desc">Personalised questions based on your unique answers are ready for you.</div><span class="feature-tag tag-purple">Week 2</span></div>'
+      +'<div class="feature-arrow">›</div></div>';
+  }
+  body.innerHTML=html;
+}
+
+// ─── JOURNAL ─────────────────────────────────────────────────────────────
+function buildJournal(){
+  const list=document.getElementById('journal-entries-list');
+  if(!list) return;
+  if(journalEntries.length===0){
+    list.innerHTML='<div style="font-size:13px;color:var(--muted);text-align:center;padding:20px;">No entries yet. Write your first one above.</div>';
+    return;
+  }
+  list.innerHTML=journalEntries.slice().reverse().map(function(e){
+    return '<div class="journal-entry">'
+      +'<div class="journal-entry-date">'+e.mood+' · '+e.date+'</div>'
+      +'<div class="journal-entry-text">'+e.text+'</div>'
+      +'</div>';
+  }).join('');
+}
+
+function selectMood(el,mood){
+  document.querySelectorAll('.mood-btn').forEach(function(b){b.classList.remove('selected');});
+  el.classList.add('selected'); selectedMood=mood;
+}
+
+function saveJournalEntry(){
+  const text=document.getElementById('journal-text').value.trim();
+  if(!text){alert('Write something first 😊');return;}
+  journalEntries.push({
+    text:text,
+    mood:selectedMood||'📝',
+    date:new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'})
+  });
+  document.getElementById('journal-text').value='';
+  selectedMood='';
+  document.querySelectorAll('.mood-btn').forEach(function(b){b.classList.remove('selected');});
+  checkMilestones(); saveState(); buildJournal();
+}
+
+// ─── SCHOOL ───────────────────────────────────────────────────────────────
+function selectSchoolOpt(el,group){
+  el.closest('.school-options').querySelectorAll('.school-option').forEach(function(o){o.classList.remove('selected');});
+  el.classList.add('selected');
+}
+function generateReport(){
+  const name=document.getElementById('school-name-input').value||'Your School';
+  document.getElementById('report-school-name').textContent=name;
+  showScreen('report');
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────
+loadState();
+if(studentName){
+  document.getElementById('welcome').style.display='none';
+  document.getElementById('bottomNav').style.display='flex';
+  updateStreak();
+  showScreen('home');
+}
+</script>
+</body>
+</html>
